@@ -1,10 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
-
-url_2_scrape = "https://www.python.org/jobs/location/"
-base_url = "https://www.python.org/"
-
+from urllib import robotparser
 
 def web_scrape(location):
 	# get a HTTP response from the URL
@@ -22,6 +19,20 @@ def web_scrape(location):
 
 
 if __name__ == "__main__":
-	#  or maybe "montreal-quebec-canada"
-	web_scrape("telecommute")
-	web_scrape("montreal-quebec-canada")
+
+	url_2_scrape = "https://www.python.org/jobs/location/"
+	base_url = "https://www.python.org/"
+
+	robot_parser = robotparser.RobotFileParser()
+	robot_parser.set_url("https://www.python.org/robots.txt")
+	robot_parser.read()
+	if robot_parser.can_fetch('*', url_2_scrape+"*"):
+		print("You can fetch : " + url_2_scrape)
+
+		#  or maybe "montreal-quebec-canada"
+		web_scrape("telecommute")
+		web_scrape("montreal-quebec-canada")
+	else:
+		print("You cannot fetch : " + url_2_scrape + "*")
+
+
