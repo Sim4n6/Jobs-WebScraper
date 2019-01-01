@@ -31,8 +31,27 @@ def extract_job_content(job_url):
 		if resp.status_code == 200:
 			soup = BeautifulSoup(resp.text, 'html.parser')
 			print(">>>> Job title: " + soup.find('title').string)
-			#for req in soup.find('h2', text='Requirements').next_siblings():
-			#	print("+ >>>> " + req.string)
+			req = soup.find('h2', text='Requirements')
+			if req:
+				for p_req in req.find_next_siblings('p'):
+					print("+ >>>> " + p_req.string)
+			restr = soup.find('h2', text='Restrictions')
+			if restr:
+				print("+++++ Restrictions +++++")
+				ul = restr.find_next_sibling('ul')
+				for li in ul.find_all('li'):
+					print("* --> " + li.text)
+			cti = soup.find('h2', text='Contact Info')
+			if cti:
+				print("Contact informations:")
+				ul = cti.find_next_sibling('ul')
+				for li in ul.find_all('li'):
+					print("* " + li.text)
+			job_desc = soup.find('h2', text='Job Description')
+			if job_desc:
+				print("Job description:")
+				for p in job_desc.find_next_siblings('p'):
+					print("- "+p.text)
 
 
 if __name__ == "__main__":
@@ -40,12 +59,12 @@ if __name__ == "__main__":
 	url_2_scrape = "https://www.python.org/jobs/location/"
 	base_url = "https://www.python.org"
 
+	# check whether the robots.txt allows the scraping of the url_2_scrape
 	robot_parser = robotparser.RobotFileParser()
 	robot_parser.set_url(base_url+"/robots.txt")
 	robot_parser.read()
 	if robot_parser.can_fetch('*', url_2_scrape+"*"):
 		print("You can fetch : " + url_2_scrape)
-
 		# or maybe "montreal-quebec-canada"
 		print("----")
 		job_urls1 = web_scrape("telecommute")
