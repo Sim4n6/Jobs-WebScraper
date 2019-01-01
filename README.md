@@ -1,8 +1,13 @@
 # PyJobs-WebScraper
 A simple job offer web scraper based on location using *beautifulsoup4* and *requests* libs in *python3*. 
 
-### App layout 
-It web scrapes from python.org/jobs offers board. 
+
+App layout
+--------
+ - The app web scrapes from python.org/jobs offers board based on location.
+ - It uses Requests lib for handling a simple HTTP get of URLs.
+ - It uses beautifulsoup4 for parsing html content.
+ - It stores the results in XLSX file, thanks to Xlsxwriter module.
 
   
 INSTALL
