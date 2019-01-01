@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 from urllib import robotparser
+import xlsxwriter
 
 
 def web_scrape(location):
@@ -26,32 +27,43 @@ def web_scrape(location):
 
 # extract job content and print it
 def extract_job_content(job_url):
+	d, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict()
 	for url in job_url:
 		resp = requests.get(url)
 		if resp.status_code == 200:
 			soup = BeautifulSoup(resp.text, 'html.parser')
 			print(">>>> Job title: " + soup.find('title').string)
+			d["title"] = soup.find('title').string
+
 			req = soup.find('h2', text='Requirements')
 			if req:
-				for p_req in req.find_next_siblings('p'):
+				for k, p_req in enumerate(req.find_next_siblings('p')):
 					print("+ >>>> " + p_req.string)
+					d_req["req "+str(k)] = p_req.string
+
 			restr = soup.find('h2', text='Restrictions')
 			if restr:
 				print("+++++ Restrictions +++++")
 				ul = restr.find_next_sibling('ul')
-				for li in ul.find_all('li'):
+				for k, li in enumerate(ul.find_all('li')):
 					print("* --> " + li.text)
+					d_restr["restr " + str(k)] = li.text
+
 			cti = soup.find('h2', text='Contact Info')
 			if cti:
 				print("Contact informations:")
 				ul = cti.find_next_sibling('ul')
-				for li in ul.find_all('li'):
+				for k, li in enumerate(ul.find_all('li')):
 					print("* " + li.text)
+					d_cti["Contact "+str(k)] = li.text
+
 			job_desc = soup.find('h2', text='Job Description')
 			if job_desc:
 				print("Job description:")
-				for p in job_desc.find_next_siblings('p'):
+				for k, p in enumerate(job_desc.find_next_siblings('p')):
 					print("- "+p.text)
+					d_job["Job descr "+str(k)] = p.text
+	return d, d_req, d_restr, d_cti, d_job
 
 
 if __name__ == "__main__":
@@ -72,8 +84,52 @@ if __name__ == "__main__":
 		# or maybe "toronto-ontario-canada"
 		print("----")
 		job_urls2 = web_scrape("toronto-ontario-canada")
-		extract_job_content(job_urls2)
+		d, d_req, d_restr, d_cti, d_job = extract_job_content(job_urls2)
+
+		# save to excel file
+		workbook = xlsxwriter.Workbook('jobs--toronto-ontario-canada.xlsx')
+		worksheet = workbook.add_worksheet("toronto-ontario-canada")
+
+		# personnalisation
+		cell_format = workbook.add_format()
+		cell_format.set_bold()
+		cell_format.set_font_color('red')
+
+		# Title
+		worksheet.write(0, 0, "Title", cell_format)
+		worksheet.write(0, 1, d["title"])
+
+		# requirements
+		row = 1
+		for key, value in d_req.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+
+		# restrictions
+		for key, value in d_restr.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+
+		# Contact informations
+		for key, value in d_cti.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+
+		# job description
+		for key, value in d_restr.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+
+		workbook.close()
+
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
+
+
+
 
 
