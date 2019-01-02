@@ -25,10 +25,12 @@ def web_scrape(location):
 	return job_urls
 
 
-# extract job content and print it
-def extract_job_content(job_url):
+def extract_job_content(job_urls):
+	""" extract the job offer content and store it in dictionaries """
+
 	d, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict()
-	for url in job_url:
+	dictionaries = []
+	for url in job_urls:
 		resp = requests.get(url)
 		if resp.status_code == 200:
 			soup = BeautifulSoup(resp.text, 'html.parser')
@@ -38,8 +40,11 @@ def extract_job_content(job_url):
 			req = soup.find('h2', text='Requirements')
 			if req:
 				for k, p_req in enumerate(req.find_next_siblings('p')):
-					print("+ >>>> " + p_req.string)
-					d_req["req "+str(k)] = p_req.string
+					if p_req.string != None:
+						print("+ >>>> " + p_req.string)
+						d_req["req "+str(k)] = p_req.string
+					else:
+						d_req["req " + str(k)] = "0"
 
 			restr = soup.find('h2', text='Restrictions')
 			if restr:
@@ -63,7 +68,9 @@ def extract_job_content(job_url):
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
 					print("- "+p.text)
 					d_job["Job descr "+str(k)] = p.text
-	return d, d_req, d_restr, d_cti, d_job
+			dictionaries.append((d, d_req, d_restr, d_cti, d_job))
+
+	return dictionaries
 
 
 def is_allowed_by_robot(base_url, url_2_scrape):
@@ -75,6 +82,53 @@ def is_allowed_by_robot(base_url, url_2_scrape):
 	return robot_parser.can_fetch('*', url_2_scrape + "*")
 
 
+def save_to_xlsx(xlsx_file, dictionaries):
+	""" Save the dictionaries to xlsx file using Xlsx-Writer """
+
+	# Save to excel file
+	workbook = xlsxwriter.Workbook(xlsx_file)
+
+	# personnalisation
+	cell_format = workbook.add_format()
+	cell_format.set_bold()
+	cell_format.set_font_color('red')
+
+	for i, v in enumerate(dictionaries):
+
+		# create a sheet for each job offer
+		worksheet = workbook.add_worksheet(f"Sheet +{str(i)}")
+
+		# unpacking
+		(d, d_req, d_restr, d_cti, d_job) = dictionaries[i]
+
+		# Title
+		worksheet.write(0, 0, "Title", cell_format)
+		worksheet.write(0, 1, d["title"])
+		# Requirements
+		row = 1
+		for key, value in d_req.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+		# Restrictions
+		for key, value in d_restr.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+		# Contact informations
+		for key, value in d_cti.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+		# Job description
+		for key, value in d_job.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
+
+	workbook.close()
+
+
 if __name__ == "__main__":
 
 	url_2_scrape = "https://www.python.org/jobs/location/"
@@ -82,54 +136,18 @@ if __name__ == "__main__":
 
 	if is_allowed_by_robot(base_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
+
 		# or maybe "montreal-quebec-canada"
 		print("----")
 		job_urls1 = web_scrape("telecommute")
+		dictionaries = extract_job_content(job_urls1)
+		save_to_xlsx("jobs--telecommute.xlsx", dictionaries)
 
 		# or maybe "toronto-ontario-canada"
 		print("----")
 		job_urls2 = web_scrape("toronto-ontario-canada")
-		d, d_req, d_restr, d_cti, d_job = extract_job_content(job_urls2)
-
-		# save to excel file
-		workbook = xlsxwriter.Workbook('jobs--toronto-ontario-canada.xlsx')
-		worksheet = workbook.add_worksheet("toronto-ontario-canada")
-
-		# personnalisation
-		cell_format = workbook.add_format()
-		cell_format.set_bold()
-		cell_format.set_font_color('red')
-
-		# Title
-		worksheet.write(0, 0, "Title", cell_format)
-		worksheet.write(0, 1, d["title"])
-
-		# requirements
-		row = 1
-		for key, value in d_req.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-
-		# restrictions
-		for key, value in d_restr.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-
-		# Contact informations
-		for key, value in d_cti.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-
-		# job description
-		for key, value in d_restr.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-
-		workbook.close()
+		dictionaries = extract_job_content(job_urls2)
+		save_to_xlsx("jobs--toronto-ontario-canada.xlsx", dictionaries)
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
