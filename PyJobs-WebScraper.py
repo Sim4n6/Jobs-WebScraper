@@ -1,11 +1,12 @@
-import requests
 from bs4 import BeautifulSoup
-import sys
 from urllib import robotparser
+import requests
 import xlsxwriter
+import sys
 
 
 def web_scrape(location):
+	""" web scrape a url based on the location """
 
 	# get a HTTP response from the URL
 	resp = requests.get(url_2_scrape+location)
@@ -28,24 +29,32 @@ def web_scrape(location):
 def extract_job_content(job_urls):
 	""" extract the job offer content and store it in dictionaries """
 
-	d, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict()
 	dictionaries = []
 	for url in job_urls:
+
+		# HTTP get request for each URL content
 		resp = requests.get(url)
 		if resp.status_code == 200:
-			soup = BeautifulSoup(resp.text, 'html.parser')
-			print(">>>> Job title: " + soup.find('title').string)
-			d["title"] = soup.find('title').string
 
+			# parse the response content for each url using beautifulsoup
+			soup = BeautifulSoup(resp.text, 'html.parser')
+
+			# Title parsing
+			d_title, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict()
+			print(">>>> Job title: " + soup.find('title').string)
+			d_title["title"] = soup.find('title').string
+
+			# Requirements parsing
 			req = soup.find('h2', text='Requirements')
 			if req:
 				for k, p_req in enumerate(req.find_next_siblings('p')):
-					if p_req.string != None:
+					if p_req.string is not None:
 						print("+ >>>> " + p_req.string)
 						d_req["req "+str(k)] = p_req.string
 					else:
 						d_req["req " + str(k)] = "0"
 
+			# Restrictions parsing
 			restr = soup.find('h2', text='Restrictions')
 			if restr:
 				print("+++++ Restrictions +++++")
@@ -54,6 +63,7 @@ def extract_job_content(job_urls):
 					print("* --> " + li.text)
 					d_restr["restr " + str(k)] = li.text
 
+			# Contact info parsing
 			cti = soup.find('h2', text='Contact Info')
 			if cti:
 				print("Contact informations:")
@@ -62,13 +72,15 @@ def extract_job_content(job_urls):
 					print("* " + li.text)
 					d_cti["Contact "+str(k)] = li.text
 
+			# Job description parsing
 			job_desc = soup.find('h2', text='Job Description')
 			if job_desc:
 				print("Job description:")
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
 					print("- "+p.text)
 					d_job["Job descr "+str(k)] = p.text
-			dictionaries.append((d, d_req, d_restr, d_cti, d_job))
+
+			dictionaries.append((d_title, d_req, d_restr, d_cti, d_job))
 
 	return dictionaries
 
@@ -93,60 +105,45 @@ def save_to_xlsx(xlsx_file, dictionaries):
 	cell_format.set_bold()
 	cell_format.set_font_color('red')
 
-	for i, v in enumerate(dictionaries):
+	for i, dict_tuple in enumerate(dictionaries):
 
 		# create a sheet for each job offer
-		worksheet = workbook.add_worksheet(f"Sheet +{str(i)}")
+		worksheet = workbook.add_worksheet(f"Sheet Offer: {str(i)}")
 
-		# unpacking
-		(d, d_req, d_restr, d_cti, d_job) = dictionaries[i]
-
-		# Title
-		worksheet.write(0, 0, "Title", cell_format)
-		worksheet.write(0, 1, d["title"])
-		# Requirements
-		row = 1
-		for key, value in d_req.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-		# Restrictions
-		for key, value in d_restr.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-		# Contact informations
-		for key, value in d_cti.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
-		# Job description
-		for key, value in d_job.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
+		# write dictionaires to worksheet
+		row = 0
+		for d_ in dict_tuple:
+			row = write_dict_2_worksheet(d_, row, worksheet, cell_format)
 
 	workbook.close()
 
 
+def write_dict_2_worksheet(dict_, row, worksheet, cell_format):
+	""" write dict_ to worksheet at row using cell_format """
+
+	for key, value in dict_.items():
+		worksheet.write(row, 0, key, cell_format)
+		worksheet.write(row, 1, value)
+		row += 1
+	return row
+
+
 if __name__ == "__main__":
 
-	url_2_scrape = "https://www.python.org/jobs/location/"
 	base_url = "https://www.python.org"
+	url_2_scrape = base_url + "/jobs/location/"
 
 	if is_allowed_by_robot(base_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
 
-		# or maybe "montreal-quebec-canada"
-		print("----")
-		job_urls1 = web_scrape("telecommute")
-		dictionaries = extract_job_content(job_urls1)
+		# Demo 1 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
+		job_urls = web_scrape("telecommute")
+		dictionaries = extract_job_content(job_urls)
 		save_to_xlsx("jobs--telecommute.xlsx", dictionaries)
 
-		# or maybe "toronto-ontario-canada"
-		print("----")
-		job_urls2 = web_scrape("toronto-ontario-canada")
-		dictionaries = extract_job_content(job_urls2)
+		# Demo 2 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
+		job_urls = web_scrape("toronto-ontario-canada")
+		dictionaries = extract_job_content(job_urls)
 		save_to_xlsx("jobs--toronto-ontario-canada.xlsx", dictionaries)
 
 	else:
