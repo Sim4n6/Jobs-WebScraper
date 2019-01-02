@@ -66,16 +66,21 @@ def extract_job_content(job_url):
 	return d, d_req, d_restr, d_cti, d_job
 
 
+def is_allowed_by_robot(base_url, url_2_scrape):
+	"""Check whether the robots.txt allows the scraping of the URL using robotparser from urllib """
+
+	robot_parser = robotparser.RobotFileParser()
+	robot_parser.set_url(base_url + "/robots.txt")
+	robot_parser.read()
+	return robot_parser.can_fetch('*', url_2_scrape + "*")
+
+
 if __name__ == "__main__":
 
 	url_2_scrape = "https://www.python.org/jobs/location/"
 	base_url = "https://www.python.org"
 
-	# check whether the robots.txt allows the scraping of the url_2_scrape
-	robot_parser = robotparser.RobotFileParser()
-	robot_parser.set_url(base_url+"/robots.txt")
-	robot_parser.read()
-	if robot_parser.can_fetch('*', url_2_scrape+"*"):
+	if is_allowed_by_robot(base_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
 		# or maybe "montreal-quebec-canada"
 		print("----")
