@@ -4,6 +4,9 @@ import requests
 import xlsxwriter
 import sys
 
+# user modules
+from JobOffer import JobOffer
+
 
 def web_scrape(location):
 	""" web scrape a url based on the location """
@@ -27,9 +30,9 @@ def web_scrape(location):
 
 
 def extract_job_content(job_urls):
-	""" extract the job offer content and store it in dictionaries """
+	""" extract the job offer content and store it in a list """
 
-	dictionaries = []
+	list_job_offers = []
 	for url in job_urls:
 
 		# HTTP get request for each URL content
@@ -80,9 +83,11 @@ def extract_job_content(job_urls):
 					print("- "+p.text)
 					d_job["Job descr "+str(k)] = p.text
 
-			dictionaries.append((d_title, d_req, d_restr, d_cti, d_job))
+			# current Job Offer
+			current_job = JobOffer(d_title, d_job, d_restr, d_req, dict(), d_cti)
+			list_job_offers.append(current_job)
 
-	return dictionaries
+	return list_job_offers
 
 
 def is_allowed_by_robot(base_url, url_2_scrape):
@@ -94,7 +99,7 @@ def is_allowed_by_robot(base_url, url_2_scrape):
 	return robot_parser.can_fetch('*', url_2_scrape + "*")
 
 
-def save_to_xlsx(xlsx_file, dictionaries):
+def save_to_xlsx(xlsx_file, list_job_offers):
 	""" Save the dictionaries to xlsx file using Xlsx-Writer """
 
 	# Save to excel file
@@ -105,17 +110,29 @@ def save_to_xlsx(xlsx_file, dictionaries):
 	cell_format.set_bold()
 	cell_format.set_font_color('red')
 
-	for i, dict_tuple in enumerate(dictionaries):
+	for i, job_offer in enumerate(list_job_offers):
 
 		# create a sheet for each job offer
-		worksheet = workbook.add_worksheet(f"Sheet Offer: {str(i)}")
+		worksheet = workbook.add_worksheet(f"Sheet Offer {str(i)}")
 
-		# write dictionaires to worksheet
-		row = 0
-		for d_ in dict_tuple:
-			row = write_dict_2_worksheet(d_, row, worksheet, cell_format)
+		# write job_offer to worksheet
+		write_job_offer_2_worksheet(job_offer, worksheet, cell_format)
 
+	# close workbook
 	workbook.close()
+
+
+def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
+	""" Write job offer object to worksheet """
+
+	row = 0
+	row = write_dict_2_worksheet(job_offer.job_title, row, worksheet, cell_format)
+	row = write_dict_2_worksheet(job_offer.job_descr, row, worksheet, cell_format)
+	row = write_dict_2_worksheet(job_offer.restrictions, row, worksheet, cell_format)
+	row = write_dict_2_worksheet(job_offer.requirements, row, worksheet, cell_format)
+	row = write_dict_2_worksheet(job_offer.company_desc, row, worksheet, cell_format)
+	row = write_dict_2_worksheet(job_offer.contact_info, row, worksheet, cell_format)
+	return row
 
 
 def write_dict_2_worksheet(dict_, row, worksheet, cell_format):
@@ -138,13 +155,13 @@ if __name__ == "__main__":
 
 		# Demo 1 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
 		job_urls = web_scrape("telecommute")
-		dictionaries = extract_job_content(job_urls)
-		save_to_xlsx("jobs--telecommute.xlsx", dictionaries)
+		list_job_offers = extract_job_content(job_urls)
+		save_to_xlsx("jobs--telecommute.xlsx", list_job_offers)
 
 		# Demo 2 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
 		job_urls = web_scrape("toronto-ontario-canada")
-		dictionaries = extract_job_content(job_urls)
-		save_to_xlsx("jobs--toronto-ontario-canada.xlsx", dictionaries)
+		list_job_offers = extract_job_content(job_urls)
+		save_to_xlsx("jobs--toronto-ontario-canada.xlsx", list_job_offers)
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
