@@ -12,7 +12,7 @@ def web_scrape(location):
 	""" web scrape a url based on the location """
 
 	# get a HTTP response from the URL
-	resp = requests.get(url_2_scrape+location)
+	resp = requests.get(url_2_scrape + location)
 
 	# parse it with beautiful soup
 	soup = BeautifulSoup(resp.text, 'html.parser')
@@ -24,8 +24,8 @@ def web_scrape(location):
 	# extract <li> of a job general description
 	job_urls = []
 	for liJob in soup.div.ol.find_all("li"):
-		print("Company:", base_url+liJob.h2.a.get('href'), " ", liJob.h2.a.string)
-		job_urls.append(base_url+liJob.h2.a.get('href'))
+		print("Company:", base_url + liJob.h2.a.get('href'), " ", liJob.h2.a.string)
+		job_urls.append(base_url + liJob.h2.a.get('href'))
 	return job_urls
 
 
@@ -53,7 +53,7 @@ def extract_job_content(job_urls):
 				for k, p_req in enumerate(req.find_next_siblings('p')):
 					if p_req.string is not None:
 						print("+ >>>> " + p_req.string)
-						d_req["req "+str(k)] = p_req.string
+						d_req["req " + str(k)] = p_req.string
 					else:
 						d_req["req " + str(k)] = "0"
 
@@ -73,15 +73,15 @@ def extract_job_content(job_urls):
 				ul = cti.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
 					print("* " + li.text)
-					d_cti["Contact "+str(k)] = li.text
+					d_cti["Contact " + str(k)] = li.text
 
 			# Job description parsing
 			job_desc = soup.find('h2', text='Job Description')
 			if job_desc:
 				print("Job description:")
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
-					print("- "+p.text)
-					d_job["Job descr "+str(k)] = p.text
+					print("- " + p.text)
+					d_job["Job descr " + str(k)] = p.text
 
 			# current Job Offer
 			current_job = JobOffer(d_title, d_job, d_restr, d_req, dict(), d_cti)
@@ -111,7 +111,6 @@ def save_to_xlsx(xlsx_file, list_job_offers):
 	cell_format.set_font_color('red')
 
 	for i, job_offer in enumerate(list_job_offers):
-
 		# create a sheet for each job offer
 		worksheet = workbook.add_worksheet(f"Sheet Offer {str(i)}")
 
@@ -165,8 +164,3 @@ if __name__ == "__main__":
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
-
-
-
-
-
