@@ -1,7 +1,7 @@
 class JobOffer:
 	""" Job Offer structure for storing text scraped """
 
-	def __init__(self, job_title, job_descr, restrictions, requirements,company_desc, contact_info):
+	def __init__(self, job_title, job_descr, restrictions, requirements, company_desc, contact_info):
 		self.job_title = job_title
 		self.job_descr = job_descr
 		self.restrictions = restrictions

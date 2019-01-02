@@ -13,19 +13,21 @@ def web_scrape(location):
 
 	# get a HTTP response from the URL
 	resp = requests.get(url_2_scrape + location)
+	if resp.status_code == 200:
 
-	# parse it with beautiful soup
-	soup = BeautifulSoup(resp.text, 'html.parser')
-	print(">>" + soup.title.string)
-	if soup.title.string != "Python Job Board | Python.org":
-		print("please, update the Web scraper.")
-		sys.exit()
+		# parse it with beautiful soup
+		soup = BeautifulSoup(resp.text, 'html.parser')
+		print(">>" + soup.title.string)
+		if soup.title.string != "Python Job Board | Python.org":
+			print("please, update the Web scraper.")
+			sys.exit()
 
-	# extract <li> of a job general description
-	job_urls = []
-	for liJob in soup.div.ol.find_all("li"):
-		print("Company:", base_url + liJob.h2.a.get('href'), " ", liJob.h2.a.string)
-		job_urls.append(base_url + liJob.h2.a.get('href'))
+		# extract <li> of a job general description
+		job_urls = []
+		for liJob in soup.div.ol.find_all("li"):
+			print("Company:", base_url + liJob.h2.a.get('href'), " ", liJob.h2.a.string)
+			job_urls.append(base_url + liJob.h2.a.get('href'))
+
 	return job_urls
 
 
@@ -52,7 +54,7 @@ def extract_job_content(job_urls):
 			if req:
 				for k, p_req in enumerate(req.find_next_siblings('p')):
 					if p_req.string is not None:
-						print("+ >>>> " + p_req.string)
+						#print("+ >>>> " + p_req.string)
 						d_req["req " + str(k)] = p_req.string
 					else:
 						d_req["req " + str(k)] = "0"
@@ -63,7 +65,7 @@ def extract_job_content(job_urls):
 				print("+++++ Restrictions +++++")
 				ul = restr.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
-					print("* --> " + li.text)
+					#print("* --> " + li.text)
 					d_restr["restr " + str(k)] = li.text
 
 			# Contact info parsing
@@ -72,7 +74,7 @@ def extract_job_content(job_urls):
 				print("Contact informations:")
 				ul = cti.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
-					print("* " + li.text)
+					#print("* " + li.text)
 					d_cti["Contact " + str(k)] = li.text
 
 			# Job description parsing
@@ -80,7 +82,7 @@ def extract_job_content(job_urls):
 			if job_desc:
 				print("Job description:")
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
-					print("- " + p.text)
+					#print("- " + p.text)
 					d_job["Job descr " + str(k)] = p.text
 
 			# current Job Offer
@@ -124,24 +126,14 @@ def save_to_xlsx(xlsx_file, list_job_offers):
 def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 	""" Write job offer object to worksheet """
 
+	# for each attribute of job_offer obj write the K,V to worksheet
 	row = 0
-	row = write_dict_2_worksheet(job_offer.job_title, row, worksheet, cell_format)
-	row = write_dict_2_worksheet(job_offer.job_descr, row, worksheet, cell_format)
-	row = write_dict_2_worksheet(job_offer.restrictions, row, worksheet, cell_format)
-	row = write_dict_2_worksheet(job_offer.requirements, row, worksheet, cell_format)
-	row = write_dict_2_worksheet(job_offer.company_desc, row, worksheet, cell_format)
-	row = write_dict_2_worksheet(job_offer.contact_info, row, worksheet, cell_format)
-	return row
-
-
-def write_dict_2_worksheet(dict_, row, worksheet, cell_format):
-	""" write dict_ to worksheet at row using cell_format """
-
-	for key, value in dict_.items():
-		worksheet.write(row, 0, key, cell_format)
-		worksheet.write(row, 1, value)
-		row += 1
-	return row
+	job_offer_attribs = vars(job_offer)
+	for V_attrib in job_offer_attribs.values():
+		for key, value in V_attrib.items():
+			worksheet.write(row, 0, key, cell_format)
+			worksheet.write(row, 1, value)
+			row += 1
 
 
 if __name__ == "__main__":
