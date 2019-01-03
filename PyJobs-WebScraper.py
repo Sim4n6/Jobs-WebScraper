@@ -39,22 +39,31 @@ def extract_job_content(job_urls):
 
 		# HTTP get request for each URL content
 		resp = requests.get(url)
+
+		# request response of the URL get is OK
 		if resp.status_code == 200:
 
 			# parse the response content for each url using beautifulsoup
 			soup = BeautifulSoup(resp.text, 'html.parser')
 
 			# Title parsing
-			d_title, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict()
+			d_title, d_company, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict(), dict()
 			print(">>>> Job title: " + soup.find('title').string)
 			d_title["title"] = soup.find('title').string
+
+			# Company name parsing
+			lst_company = soup.find('h1', class_='listing-company')
+			if lst_company:
+				print("+++++ Company name +++++")
+				span_company = lst_company.find('span', class_='company-name')
+				d_company["company"] = span_company.contents[2].strip()
 
 			# Requirements parsing
 			req = soup.find('h2', text='Requirements')
 			if req:
+				print("+++++ Requirements +++++")
 				for k, p_req in enumerate(req.find_next_siblings('p')):
 					if p_req.string is not None:
-						#print("+ >>>> " + p_req.string)
 						d_req["req " + str(k)] = p_req.string
 					else:
 						d_req["req " + str(k)] = "0"
@@ -65,28 +74,25 @@ def extract_job_content(job_urls):
 				print("+++++ Restrictions +++++")
 				ul = restr.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
-					#print("* --> " + li.text)
 					d_restr["restr " + str(k)] = li.text
 
 			# Contact info parsing
 			cti = soup.find('h2', text='Contact Info')
 			if cti:
-				print("Contact informations:")
+				print("+++++ Contact informations +++++")
 				ul = cti.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
-					#print("* " + li.text)
 					d_cti["Contact " + str(k)] = li.text
 
 			# Job description parsing
 			job_desc = soup.find('h2', text='Job Description')
 			if job_desc:
-				print("Job description:")
+				print("+++++ Job description +++++")
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
-					#print("- " + p.text)
 					d_job["Job descr " + str(k)] = p.text
 
 			# current Job Offer
-			current_job = JobOffer(d_title, d_job, d_restr, d_req, dict(), d_cti)
+			current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti)
 			list_job_offers.append(current_job)
 
 	return list_job_offers
