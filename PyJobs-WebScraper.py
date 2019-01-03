@@ -25,7 +25,7 @@ def web_scrape(location):
 		# extract <li> of a job general description
 		job_urls = []
 		for liJob in soup.div.ol.find_all("li"):
-			print("Company:", base_url + liJob.h2.a.get('href'), " ", liJob.h2.a.string)
+			print("Offer:", base_url + liJob.h2.a.get('href'), " ", liJob.h2.a.string)
 			job_urls.append(base_url + liJob.h2.a.get('href'))
 
 	return job_urls
@@ -40,7 +40,7 @@ def extract_job_content(job_urls):
 		# HTTP get request for each URL content
 		resp = requests.get(url)
 
-		# request response of the URL get is OK
+		# HTTP get request response of the URL is OK
 		if resp.status_code == 200:
 
 			# parse the response content for each url using beautifulsoup
@@ -48,20 +48,17 @@ def extract_job_content(job_urls):
 
 			# Title parsing
 			d_title, d_company, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict(), dict()
-			print(">>>> Job title: " + soup.find('title').string)
 			d_title["title"] = soup.find('title').string
 
 			# Company name parsing
 			lst_company = soup.find('h1', class_='listing-company')
 			if lst_company:
-				print("+++++ Company name +++++")
 				span_company = lst_company.find('span', class_='company-name')
 				d_company["company"] = span_company.contents[2].strip()
 
 			# Requirements parsing
 			req = soup.find('h2', text='Requirements')
 			if req:
-				print("+++++ Requirements +++++")
 				for k, p_req in enumerate(req.find_next_siblings('p')):
 					if p_req.string is not None:
 						d_req["req " + str(k)] = p_req.string
@@ -71,7 +68,6 @@ def extract_job_content(job_urls):
 			# Restrictions parsing
 			restr = soup.find('h2', text='Restrictions')
 			if restr:
-				print("+++++ Restrictions +++++")
 				ul = restr.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
 					d_restr["restr " + str(k)] = li.text
@@ -79,7 +75,6 @@ def extract_job_content(job_urls):
 			# Contact info parsing
 			cti = soup.find('h2', text='Contact Info')
 			if cti:
-				print("+++++ Contact informations +++++")
 				ul = cti.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
 					d_cti["Contact " + str(k)] = li.text
@@ -87,11 +82,10 @@ def extract_job_content(job_urls):
 			# Job description parsing
 			job_desc = soup.find('h2', text='Job Description')
 			if job_desc:
-				print("+++++ Job description +++++")
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
 					d_job["Job descr " + str(k)] = p.text
 
-			# current Job Offer
+			# Current Job Offer stored in an object
 			current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti)
 			list_job_offers.append(current_job)
 
