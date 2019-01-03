@@ -22,7 +22,7 @@ def web_scrape(location):
 			print("please, update the Web scraper.")
 			sys.exit()
 
-		# extract <li> of a job general description
+		# extract job offer urls from py job location based board
 		job_urls = [base_url + liJob.h2.a.get('href') for liJob in soup.div.ol.find_all("li")]
 		print(job_urls)
 
@@ -147,10 +147,15 @@ if __name__ == "__main__":
 		list_job_offers = extract_job_content(job_urls)
 		save_to_xlsx("jobs--telecommute.xlsx", list_job_offers)
 
-		# Demo 2 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
+		# Demo 2 : Web scrape the toronto-ontario-canada, extract the job offer urls and then store to xlsx
 		job_urls = web_scrape("toronto-ontario-canada")
 		list_job_offers = extract_job_content(job_urls)
 		save_to_xlsx("jobs--toronto-ontario-canada.xlsx", list_job_offers)
+
+		# Demo 3 : Web scrape the montreal-quebec-canada, extract the job offer urls and then store the results to xlsx
+		job_urls = web_scrape("montreal-quebec-canada")
+		list_job_offers = extract_job_content(job_urls)
+		save_to_xlsx("jobs--montreal-quebec-canada.xlsx", list_job_offers)
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
