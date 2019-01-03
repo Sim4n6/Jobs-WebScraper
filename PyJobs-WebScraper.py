@@ -23,10 +23,8 @@ def web_scrape(location):
 			sys.exit()
 
 		# extract <li> of a job general description
-		job_urls = []
-		for liJob in soup.div.ol.find_all("li"):
-			print("Offer:", base_url + liJob.h2.a.get('href'), " ", liJob.h2.a.string)
-			job_urls.append(base_url + liJob.h2.a.get('href'))
+		job_urls = [base_url + liJob.h2.a.get('href') for liJob in soup.div.ol.find_all("li")]
+		print(job_urls)
 
 	return job_urls
 
