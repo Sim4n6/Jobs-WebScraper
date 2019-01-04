@@ -109,3 +109,6 @@ venv.bak/
 # temporary local storage files
 *.xlsx
 *.xlsx#
+
+# logging journal
+journal.log
