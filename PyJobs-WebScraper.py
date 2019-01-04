@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib import robotparser
+import datetime as dt
 import requests
 import xlsxwriter
 import sys
@@ -8,11 +9,11 @@ import sys
 from JobOffer import JobOffer
 
 
-def web_scrape(location):
-	""" web scrape a url based on the location """
+def web_scrape(location_rel_path):
+	""" web scrape a url based on the location relative path """
 
 	# get a HTTP response from the URL
-	resp = requests.get(url_2_scrape + location)
+	resp = requests.get(url_2_scrape + location_rel_path)
 	if resp.status_code == 200:
 
 		# parse it with beautiful soup
@@ -23,7 +24,7 @@ def web_scrape(location):
 			sys.exit()
 
 		# extract job offer urls from py job location based board
-		job_urls = [base_url + liJob.h2.a.get('href') for liJob in soup.div.ol.find_all("li")]
+		job_urls = [main_url + li_job.h2.a.get('href') for li_job in soup.div.ol.find_all("li")]
 		print(job_urls)
 
 	return job_urls
@@ -136,26 +137,26 @@ def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 
 if __name__ == "__main__":
 
-	base_url = "https://www.python.org"
-	url_2_scrape = base_url + "/jobs/location/"
+	main_url = "https://www.python.org"
+	url_2_scrape = main_url + "/jobs/location/"
 
-	if is_allowed_by_robot(base_url, url_2_scrape):
+	if is_allowed_by_robot(main_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
 
 		# Demo 1 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
 		job_urls = web_scrape("telecommute")
 		list_job_offers = extract_job_content(job_urls)
-		save_to_xlsx("jobs--telecommute.xlsx", list_job_offers)
+		save_to_xlsx("jobs--telecommute__" + str(dt.date.today()) + ".xlsx", list_job_offers)
 
 		# Demo 2 : Web scrape the toronto-ontario-canada, extract the job offer urls and then store to xlsx
 		job_urls = web_scrape("toronto-ontario-canada")
 		list_job_offers = extract_job_content(job_urls)
-		save_to_xlsx("jobs--toronto-ontario-canada.xlsx", list_job_offers)
+		save_to_xlsx("jobs--toronto-ontario-canada__" + str(dt.date.today()) + ".xlsx", list_job_offers)
 
 		# Demo 3 : Web scrape the montreal-quebec-canada, extract the job offer urls and then store the results to xlsx
 		job_urls = web_scrape("montreal-quebec-canada")
 		list_job_offers = extract_job_content(job_urls)
-		save_to_xlsx("jobs--montreal-quebec-canada.xlsx", list_job_offers)
+		save_to_xlsx("jobs--montreal-quebec-canada__" + str(dt.date.today()) + ".xlsx", list_job_offers)
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
