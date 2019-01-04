@@ -5,8 +5,8 @@ A simple job offer web scraper based on location using *beautifulsoup4* and *req
 App functionnalities : 
 --------
  - The app web scrapes from python.org/jobs offers board based on location.
- - It uses Requests lib for handling a simple HTTP get of URLs.
- - It uses beautifulsoup4 for parsing html content.
+ - It uses Requests module for handling a simple HTTP get of URLs.
+ - It uses beautifulsoup4 module for parsing html content.
  - It stores the results in XLSX file, thanks to Xlsxwriter module.
 
 TODOS : 
