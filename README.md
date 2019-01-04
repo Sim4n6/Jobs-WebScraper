@@ -27,7 +27,7 @@ Create a virtual environnement on windows :
     $ python3 -m venv venv
     $ venv\Scripts\activate.bat
     
-Install the necessary packages including Flask and Pytest: 
+Install the necessary packages: 
     
     $ pip3 install -r requirements.txt
    
