@@ -9,7 +9,13 @@ App functionnalities :
  - It uses beautifulsoup4 for parsing html content.
  - It stores the results in XLSX file, thanks to Xlsxwriter module.
 
-  
+TODOS : 
+-------
+ - [ ] add logging capabilities.
+ - [ ] make a recursive web scraping 
+ - [ ] measure and print the duration of the web scraping
+ - [ ] scrape other websites.
+
 INSTALL
 ----
  Clone the repository from github : 
