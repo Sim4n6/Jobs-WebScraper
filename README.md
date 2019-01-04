@@ -13,6 +13,7 @@ Todos :
 -------
  - [ ] make a recursive web scraping 
  - [ ] scrape other websites.
+ - [ ] store xlsx files in a specific directory named "saved_jobs"
 
 INSTALL
 ----
