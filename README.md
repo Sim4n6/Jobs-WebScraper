@@ -11,9 +11,7 @@ App functionnalities :
 
 TODOS : 
 -------
- - [x] add logging capabilities.
  - [ ] make a recursive web scraping 
- - [ ] measure and print the duration of the web scraping
  - [ ] scrape other websites.
 
 INSTALL
