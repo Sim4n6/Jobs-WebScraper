@@ -9,7 +9,7 @@ App functionnalities :
  - It uses beautifulsoup4 module for parsing html content.
  - It stores the results in XLSX file, thanks to Xlsxwriter module.
 
-TODOS : 
+Todos : 
 -------
  - [ ] make a recursive web scraping 
  - [ ] scrape other websites.
