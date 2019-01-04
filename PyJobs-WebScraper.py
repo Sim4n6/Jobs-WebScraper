@@ -6,6 +6,7 @@ import pprint
 import requests
 import xlsxwriter
 import sys
+import os
 
 # user modules
 from JobOffer import JobOffer
@@ -136,10 +137,13 @@ def is_allowed_by_robot(base_url, url_2_scrape):
 def save_to_xlsx(xlsx_file, list_job_offers):
 	""" Save the dictionaries to xlsx file using Xlsx-Writer """
 
-	logging.info("Xlsx writting started at " + str(dt.datetime.now()) + " to file " + xlsx_file)
+	logging.info("Xlsx writting started at " + str(dt.datetime.now()) + " to file " + "saved_jobs/" + xlsx_file)
+
+	# Create directory "saved_jobs" locally
+	create_xlsx_dir("saved_jobs")
 
 	# Save to excel file
-	workbook = xlsxwriter.Workbook(xlsx_file)
+	workbook = xlsxwriter.Workbook("saved_jobs" + "/" + xlsx_file)
 
 	# personnalisation
 	cell_format = workbook.add_format()
@@ -170,6 +174,27 @@ def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 			row += 1
 
 
+def create_xlsx_dir(xlsx_dir):
+	""" Create a xlsx directory """
+	try:
+		os.mkdir(xlsx_dir)
+		logging.info("Directory " + xlsx_dir + " created.")
+	except FileExistsError:
+		logging.warning("Directory " + xlsx_dir + " already exists.")
+
+
+def web_scrape_demo(location):
+	""" Web scrape the location, extract the job offer urls and then store to xlsx """
+
+	t1 = dt.datetime.now()
+	job_urls = web_scrape(location)
+	list_job_offers = extract_job_content(job_urls)
+	delta_t = dt.datetime.now() - t1
+	print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(
+		delta_t.microseconds) + " microseconds.")
+	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
+
+
 if __name__ == "__main__":
 
 	main_url = "https://www.python.org"
@@ -181,29 +206,14 @@ if __name__ == "__main__":
 	if is_allowed_by_robot(main_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
 
-		# Demo 1 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
-		t1 = dt.datetime.now()
-		job_urls = web_scrape("telecommute")
-		list_job_offers = extract_job_content(job_urls)
-		delta_t = dt.datetime.now() - t1
-		print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(delta_t.microseconds) + " microseconds.")
-		save_to_xlsx("jobs--telecommute__" + str(dt.date.today()) + ".xlsx", list_job_offers)
+		# Demo 1 : Web scrape the "telecommute", extract the job offer urls and then store to xlsx
+		web_scrape_demo("telecommute")
 
 		# Demo 2 : Web scrape the toronto-ontario-canada, extract the job offer urls and then store to xlsx
-		t1 = dt.datetime.now()
-		job_urls = web_scrape("toronto-ontario-canada")
-		list_job_offers = extract_job_content(job_urls)
-		delta_t = dt.datetime.now() - t1
-		print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(delta_t.microseconds) + " microseconds.")
-		save_to_xlsx("jobs--toronto-ontario-canada__" + str(dt.date.today()) + ".xlsx", list_job_offers)
+		web_scrape_demo("toronto-ontario-canada")
 
 		# Demo 3 : Web scrape the montreal-quebec-canada, extract the job offer urls and then store the results to xlsx
-		t1 = dt.datetime.now()
-		job_urls = web_scrape("montreal-quebec-canada")
-		list_job_offers = extract_job_content(job_urls)
-		delta_t = dt.datetime.now() - t1
-		print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(delta_t.microseconds) + " microseconds.")
-		save_to_xlsx("jobs--montreal-quebec-canada__" + str(dt.date.today()) + ".xlsx", list_job_offers)
+		web_scrape_demo("montreal-quebec-canada")
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")

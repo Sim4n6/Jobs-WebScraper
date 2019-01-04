@@ -112,3 +112,7 @@ venv.bak/
 
 # logging journal
 journal.log
+
+# saved xlsx files
+saved_jobs
+
