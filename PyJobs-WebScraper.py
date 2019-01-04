@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 from urllib import robotparser
 import datetime as dt
+import logging
+import pprint
 import requests
 import xlsxwriter
 import sys
@@ -10,28 +12,40 @@ from JobOffer import JobOffer
 
 
 def web_scrape(location_rel_path):
-	""" web scrape a url based on the location relative path """
+	""" Web scrape a url based on the location relative path """
 
 	# get a HTTP response from the URL
 	resp = requests.get(url_2_scrape + location_rel_path)
+	logging.info("A get request made for URL : " + url_2_scrape + location_rel_path)
+
 	if resp.status_code == 200:
+
+		# logging the result of the request code
+		logging.info("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url_2_scrape + location_rel_path)
 
 		# parse it with beautiful soup
 		soup = BeautifulSoup(resp.text, 'html.parser')
 		print(">>" + soup.title.string)
 		if soup.title.string != "Python Job Board | Python.org":
-			print("please, update the Web scraper.")
+			logging.warning("Please, update the web scraper.")
 			sys.exit()
 
 		# extract job offer urls from py job location based board
 		job_urls = [main_url + li_job.h2.a.get('href') for li_job in soup.div.ol.find_all("li")]
-		print(job_urls)
+
+		# pretty printing of the
+		pp = pprint.PrettyPrinter(indent=4)
+		pp.pprint(str(len(job_urls)) + " urls will be scraped.")
+		pp.pprint(job_urls)
+
+	else:
+		logging.warning("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url_2_scrape + location_rel_path)
 
 	return job_urls
 
 
 def extract_job_content(job_urls):
-	""" extract the job offer content and store it in a list """
+	""" Extract the job offer content and store it in a list """
 
 	list_job_offers = []
 	for url in job_urls:
@@ -42,8 +56,14 @@ def extract_job_content(job_urls):
 		# HTTP get request response of the URL is OK
 		if resp.status_code == 200:
 
+			# logging the result of the request code
+			logging.info("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url)
+
 			# parse the response content for each url using beautifulsoup
 			soup = BeautifulSoup(resp.text, 'html.parser')
+
+			#
+			logging.info("Started parsing " + url)
 
 			# Title parsing
 			d_title, d_company, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict(), dict()
@@ -88,6 +108,11 @@ def extract_job_content(job_urls):
 			current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti)
 			list_job_offers.append(current_job)
 
+		else:
+
+			# logging the result of the request code
+			logging.warning("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url)
+
 	return list_job_offers
 
 
@@ -97,11 +122,21 @@ def is_allowed_by_robot(base_url, url_2_scrape):
 	robot_parser = robotparser.RobotFileParser()
 	robot_parser.set_url(base_url + "/robots.txt")
 	robot_parser.read()
-	return robot_parser.can_fetch('*', url_2_scrape + "*")
+	logging.info("Robots.txt is read from " + base_url + "/robots.txt")
+
+	is_allowed = robot_parser.can_fetch('*', url_2_scrape + "*")
+	if is_allowed:
+		logging.info("It is allowed to web scrape " + url_2_scrape)
+	else:
+		logging.warning("It is not allowed to web scrape " + url_2_scrape)
+
+	return is_allowed
 
 
 def save_to_xlsx(xlsx_file, list_job_offers):
 	""" Save the dictionaries to xlsx file using Xlsx-Writer """
+
+	logging.info("Xlsx writting started at " + str(dt.datetime.now()) + " to file " + xlsx_file)
 
 	# Save to excel file
 	workbook = xlsxwriter.Workbook(xlsx_file)
@@ -139,6 +174,9 @@ if __name__ == "__main__":
 
 	main_url = "https://www.python.org"
 	url_2_scrape = main_url + "/jobs/location/"
+
+	logging.basicConfig(filename='journal.log', filemode='w', level=logging.INFO)
+	logging.info("The app " + str(sys.argv[0]) + " started at " + str(dt.datetime.now()) )
 
 	if is_allowed_by_robot(main_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
