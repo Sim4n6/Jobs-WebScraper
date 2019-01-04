@@ -182,18 +182,27 @@ if __name__ == "__main__":
 		print("You can fetch : " + url_2_scrape)
 
 		# Demo 1 : Web scrape the telecommute, extract the job offer urls and then store to xlsx
+		t1 = dt.datetime.now()
 		job_urls = web_scrape("telecommute")
 		list_job_offers = extract_job_content(job_urls)
+		delta_t = dt.datetime.now() - t1
+		print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(delta_t.microseconds) + " microseconds.")
 		save_to_xlsx("jobs--telecommute__" + str(dt.date.today()) + ".xlsx", list_job_offers)
 
 		# Demo 2 : Web scrape the toronto-ontario-canada, extract the job offer urls and then store to xlsx
+		t1 = dt.datetime.now()
 		job_urls = web_scrape("toronto-ontario-canada")
 		list_job_offers = extract_job_content(job_urls)
+		delta_t = dt.datetime.now() - t1
+		print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(delta_t.microseconds) + " microseconds.")
 		save_to_xlsx("jobs--toronto-ontario-canada__" + str(dt.date.today()) + ".xlsx", list_job_offers)
 
 		# Demo 3 : Web scrape the montreal-quebec-canada, extract the job offer urls and then store the results to xlsx
+		t1 = dt.datetime.now()
 		job_urls = web_scrape("montreal-quebec-canada")
 		list_job_offers = extract_job_content(job_urls)
+		delta_t = dt.datetime.now() - t1
+		print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(delta_t.microseconds) + " microseconds.")
 		save_to_xlsx("jobs--montreal-quebec-canada__" + str(dt.date.today()) + ".xlsx", list_job_offers)
 
 	else:
