@@ -23,7 +23,8 @@ def web_scrape(location_rel_path):
 	if resp.status_code == 200:
 
 		# logging the result of the request code
-		logging.info("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url_2_scrape + location_rel_path)
+		logging.info("Request status code " + str(
+			resp.status_code) + " is returned for a get request URL " + url_2_scrape + location_rel_path)
 
 		# parse it with beautiful soup
 		soup = BeautifulSoup(resp.text, 'html.parser')
@@ -41,7 +42,8 @@ def web_scrape(location_rel_path):
 		pp.pprint(job_urls)
 
 	else:
-		logging.warning("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url_2_scrape + location_rel_path)
+		logging.warning("Request status code " + str(
+			resp.status_code) + " is returned for a get request URL " + url_2_scrape + location_rel_path)
 
 	return job_urls
 
@@ -113,7 +115,8 @@ def extract_job_content(job_urls):
 		else:
 
 			# logging the result of the request code
-			logging.warning("Request status code " + str(resp.status_code) + " is returned for a get request URL " + url)
+			logging.warning(
+				"Request status code " + str(resp.status_code) + " is returned for a get request URL " + url)
 
 	return list_job_offers
 
@@ -135,16 +138,16 @@ def is_allowed_by_robot(base_url, url_2_scrape):
 	return is_allowed
 
 
-def save_to_xlsx(xlsx_file, list_job_offers):
+def save_to_xlsx(xlsx_filename, list_job_offers):
 	""" Save the dictionaries to xlsx file using Xlsx-Writer """
 
-	logging.info("Xlsx writting started at " + str(dt.datetime.now()) + " to file " + "saved_jobs/" + xlsx_file)
+	logging.info("Xlsx writting started at " + str(dt.datetime.now()) + " to file " + "saved_jobs/" + xlsx_filename)
 
 	# Create directory "saved_jobs" locally
 	create_xlsx_dir("saved_jobs")
 
 	# Save to excel file
-	workbook = xlsxwriter.Workbook("saved_jobs" + "/" + xlsx_file)
+	workbook = xlsxwriter.Workbook("saved_jobs" + "/" + xlsx_filename)
 
 	# personnalisation
 	cell_format = workbook.add_format()
@@ -196,6 +199,43 @@ def web_scrape_demo(location):
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
 
+def print_feed_infos(feed_parsed):
+	""" print feed informations to stdout """
+
+	print(">>", feed_parsed.feed.title, feed_parsed.feed.link)
+	print("lang:", feed_parsed.feed.language, "version:", feed_parsed.version)
+	print("Number of entries to be parsed : ", len(feed_parsed.entries))
+
+
+def extract_job_offer_from_feed(feed_parsed):
+
+	list_job_offers = []
+	for entry in feed_parsed.entries:
+		d_title, d_job, d_restr, d_req, d_company, d_cti = dict(), dict(), dict(), dict(), dict(), dict()
+		d_title["title"] = entry.title
+		d_job["desc"] = entry.description
+		d_restr["res"] = ""
+		d_req["req"] = ""
+		d_company["comp"] = ""
+		d_cti["contact"] = entry.link
+		current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti)
+		list_job_offers.append(current_job)
+
+	return list_job_offers
+
+
+def feedparser_demo():
+	# feed parsing
+	feed_url = "https://www.afpy.org/feed/emplois/rss.xml"
+	feed_parsed = feedparser.parse(feed_url)
+	# print feed informations to stdout
+	print_feed_infos(feed_parsed)
+	# store feed infos of entries to xlsx
+	lst_job_offers = extract_job_offer_from_feed(feed_parsed)
+	# save to xlsx file
+	save_to_xlsx("jobs--" + str(dt.date.today()) + "__afpy" + ".xlsx", lst_job_offers)
+
+
 if __name__ == "__main__":
 
 	main_url = "https://www.python.org"
@@ -219,17 +259,5 @@ if __name__ == "__main__":
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
 
-	# feed parsing and handling
-	feed_url = "https://www.afpy.org/feed/emplois/rss.xml"
-	feed_parsed = feedparser.parse(feed_url)
-	print(feed_parsed.feed.title)
-	print(feed_parsed.feed.link)
-	print("lang:", feed_parsed.feed.language, "version:", feed_parsed.version)
-	print("Number of entries : ", len(feed_parsed.entries))
-
-	for entry in feed_parsed.entries:
-		print("Titre:", entry.title)
-		print("descr:", entry.description)
-		print("link:", entry.link)
-
-
+	# Demo 4 : Feed parsing RSS of afpy.org
+	feedparser_demo()
