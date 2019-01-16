@@ -7,6 +7,7 @@ import requests
 import xlsxwriter
 import sys
 import os
+import feedparser
 
 # user modules
 from JobOffer import JobOffer
@@ -201,7 +202,7 @@ if __name__ == "__main__":
 	url_2_scrape = main_url + "/jobs/location/"
 
 	logging.basicConfig(filename='journal.log', filemode='w', level=logging.INFO)
-	logging.info("The app " + str(sys.argv[0]) + " started at " + str(dt.datetime.now()) )
+	logging.info("The app " + str(sys.argv[0]) + " started at " + str(dt.datetime.now()))
 
 	if is_allowed_by_robot(main_url, url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
@@ -217,3 +218,18 @@ if __name__ == "__main__":
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
+
+	# feed parsing and handling
+	feed_url = "https://www.afpy.org/feed/emplois/rss.xml"
+	feed_parsed = feedparser.parse(feed_url)
+	print(feed_parsed.feed.title)
+	print(feed_parsed.feed.link)
+	print("lang:", feed_parsed.feed.language, "version:", feed_parsed.version)
+	print("Number of entries : ", len(feed_parsed.entries))
+
+	for entry in feed_parsed.entries:
+		print("Titre:", entry.title)
+		print("descr:", entry.description)
+		print("link:", entry.link)
+
+
