@@ -12,7 +12,6 @@ App functionnalities :
 Todos : 
 -------
  - [ ] make a recursive web scraping 
- - [ ] scrape other websites.
 
 INSTALL
 ----
