@@ -1,11 +1,12 @@
 # PyJobs-WebScraper
-A simple job offer web scraper based on location using *beautifulsoup4* and *requests* libs in *python3*. 
+A simple python job offers web scraper using *beautifulsoup4* and *requests* modules in *python3*. 
 
 
 App functionnalities : 
 --------
  - The app web scrapes from python.org/jobs offers board based on location.
- - It uses Requests module for handling a simple HTTP get of URLs.
+ - It web scrapes from https://www.afpy.org/posts/emplois offers.
+ - It uses Requests module for handling a simple HTTP get of URLs content.
  - It uses beautifulsoup4 module for parsing html content.
  - It stores the results in XLSX file, thanks to Xlsxwriter module.
 
@@ -17,8 +18,8 @@ INSTALL
 ----
  Clone the repository from github : 
 
-    $ git clone https://github.com/Sim4n6/PyJobs-WebScraper.git PyJob-WebScraper
-    $ cd PyJob-WebScraper
+    $ git clone https://github.com/Sim4n6/PyJobs-WebScraper.git PyJobs-WebScraper
+    $ cd PyJobs-WebScraper
 
 Create a virtual environnement on linux : 
 
