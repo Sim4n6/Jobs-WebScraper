@@ -13,6 +13,37 @@ import feedparser
 from JobOffer import JobOffer
 
 
+def extract_job_content_feed_url(feed_url_job):
+	""" Web scrape a url from feed """
+
+	# get a HTTP response from the URL
+	resp = requests.get(feed_url_job)
+
+	if resp.status_code == 200:
+		soup = BeautifulSoup(resp.text, 'html.parser')
+
+		d_title, d_job, d_restr, d_req, d_company, d_cti, d_url = dict(), dict(), dict(), dict(), dict(), dict(), dict()
+		d_title["title"] = soup.find('h1').text
+		descr = soup.find('div', class_='jobsearch-JobComponent-description')
+		if descr:
+			d_job["desc"] = descr.text
+		else:
+			d_job["desc"] = ""
+		d_restr["res"] = ""
+		d_req["req"] = ""
+		comp = soup.find('aside').find('h2')
+		if comp:
+			d_company["comp"] = comp.text
+		else:
+			d_company["comp"] = ""
+		d_cti["contact"] = soup.find('aside').text
+		d_url["url"] = feed_url_job
+		return JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti, d_url)
+
+	else:
+		logging.warning("A get URL did not been reached")
+
+
 def web_scrape(location_rel_path):
 	""" Web scrape a url based on the location relative path """
 
@@ -70,7 +101,7 @@ def extract_job_content(job_urls):
 			logging.info("Started parsing " + url)
 
 			# Title parsing
-			d_title, d_company, d_req, d_restr, d_cti, d_job = dict(), dict(), dict(), dict(), dict(), dict()
+			d_title, d_company, d_req, d_restr, d_cti, d_job, d_url = dict(), dict(), dict(), dict(), dict(), dict(), dict()
 			d_title["title"] = soup.find('title').string
 
 			# Company name parsing
@@ -108,8 +139,11 @@ def extract_job_content(job_urls):
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
 					d_job["Job descr " + str(k)] = p.text
 
+			# Job URL
+			d_url["Url"] = url
+
 			# Current Job Offer stored in an object
-			current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti)
+			current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti, d_url)
 			list_job_offers.append(current_job)
 
 		else:
@@ -211,14 +245,10 @@ def extract_job_offer_from_feed(feed_parsed):
 
 	list_job_offers = []
 	for entry in feed_parsed.entries:
-		d_title, d_job, d_restr, d_req, d_company, d_cti = dict(), dict(), dict(), dict(), dict(), dict()
-		d_title["title"] = entry.title
-		d_job["desc"] = entry.description
-		d_restr["res"] = ""
-		d_req["req"] = ""
-		d_company["comp"] = ""
-		d_cti["contact"] = entry.link
-		current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti)
+		t1 = dt.datetime.now()
+		current_job = extract_job_content_feed_url(entry.link)
+		delta_t = dt.datetime.now() - t1
+		print(f"Duration of scraping of URL:{entry.link} is : {delta_t.seconds} in seconds and {delta_t.microseconds} in microseconds.")
 		list_job_offers.append(current_job)
 
 	return list_job_offers
