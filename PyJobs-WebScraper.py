@@ -24,7 +24,7 @@ def extract_job_content_feed_url(feed_url_job):
 
 		d_title, d_job, d_restr, d_req, d_company, d_cti, d_url = dict(), dict(), dict(), dict(), dict(), dict(), dict()
 		d_title["title"] = soup.find('h1').text
-		descr = soup.find('div', class_='jobsearch-JobComponent-description')
+		descr = soup.find('article')
 		if descr:
 			d_job["desc"] = descr.text
 		else:
