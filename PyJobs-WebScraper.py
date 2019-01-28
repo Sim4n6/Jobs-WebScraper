@@ -19,7 +19,7 @@ def duration_decorator(func):
 		t_before = dt.datetime.now()
 		output = func(*args, **kwargs)
 		delta_t = dt.datetime.now() - t_before
-		print(f"Execution duration of {func} is : {delta_t.seconds} in seconds and {delta_t.microseconds} in microseconds.")
+		print(f"Execution duration of {func.__name__} is : {delta_t.seconds} in seconds and {delta_t.microseconds} in microseconds.")
 		return output
 
 	return wrapper
@@ -27,7 +27,7 @@ def duration_decorator(func):
 
 def log_decorator(func):
 	def wrapper(*args, **kwargs):
-		logging.info(f"Call made to {func}")
+		logging.info(f"Call made to {func.__name__}")
 		return func(*args, **kwargs)
 	return wrapper
 
