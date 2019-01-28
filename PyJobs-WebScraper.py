@@ -25,7 +25,15 @@ def duration_decorator(func):
 	return wrapper
 
 
+def log_decorator(func):
+	def wrapper(*args, **kwargs):
+		logging.info(f"Call made to {func}")
+		return func(*args, **kwargs)
+	return wrapper
+
+
 @duration_decorator
+@log_decorator
 def extract_job_content_feed_url(feed_url_job):
 	""" Web scrape a url from feed """
 
@@ -57,6 +65,7 @@ def extract_job_content_feed_url(feed_url_job):
 		logging.warning("A get URL did not been reached")
 
 
+@log_decorator
 def web_scrape(location_rel_path):
 	""" Web scrape a url based on the location relative path """
 
@@ -93,6 +102,7 @@ def web_scrape(location_rel_path):
 
 
 @duration_decorator
+@log_decorator
 def extract_job_content(job_urls):
 	""" Extract the job offer content and store it in a list """
 
@@ -169,6 +179,7 @@ def extract_job_content(job_urls):
 	return list_job_offers
 
 
+@log_decorator
 def is_allowed_by_robot(base_url, url_2_scrape):
 	"""Check whether the robots.txt allows the scraping of the URL using robotparser from urllib """
 
@@ -186,6 +197,7 @@ def is_allowed_by_robot(base_url, url_2_scrape):
 	return is_allowed
 
 
+@log_decorator
 def save_to_xlsx(xlsx_filename, list_job_offers):
 	""" Save the dictionaries to xlsx file using Xlsx-Writer """
 
@@ -213,6 +225,7 @@ def save_to_xlsx(xlsx_filename, list_job_offers):
 	workbook.close()
 
 
+@log_decorator
 def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 	""" Write job offer object to worksheet """
 
@@ -226,6 +239,7 @@ def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 			row += 1
 
 
+@log_decorator
 def create_xlsx_dir(xlsx_dir):
 	""" Create a xlsx directory """
 	try:
@@ -235,6 +249,7 @@ def create_xlsx_dir(xlsx_dir):
 		logging.warning("Directory " + xlsx_dir + " already exists.")
 
 
+@log_decorator
 def web_scrape_demo(location):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
@@ -243,6 +258,7 @@ def web_scrape_demo(location):
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
 
+@log_decorator
 def print_feed_infos(feed_parsed):
 	""" print feed informations to stdout """
 
@@ -251,6 +267,7 @@ def print_feed_infos(feed_parsed):
 	print("Number of entries to be parsed : ", len(feed_parsed.entries))
 
 
+@log_decorator
 def extract_job_offer_from_feed(feed_parsed):
 
 	list_job_offers = []
@@ -261,9 +278,7 @@ def extract_job_offer_from_feed(feed_parsed):
 	return list_job_offers
 
 
-
-
-
+@log_decorator
 def feedparser_demo():
 	# feed parsing
 	feed_url = "https://www.afpy.org/feed/emplois/rss.xml"
