@@ -13,6 +13,19 @@ import feedparser
 from JobOffer import JobOffer
 
 
+def duration_decorator(func):
+
+	def wrapper(*args, **kwargs):
+		t_before = dt.datetime.now()
+		output = func(*args, **kwargs)
+		delta_t = dt.datetime.now() - t_before
+		print(f"Execution duration of {func} is : {delta_t.seconds} in seconds and {delta_t.microseconds} in microseconds.")
+		return output
+
+	return wrapper
+
+
+@duration_decorator
 def extract_job_content_feed_url(feed_url_job):
 	""" Web scrape a url from feed """
 
@@ -79,6 +92,7 @@ def web_scrape(location_rel_path):
 	return job_urls
 
 
+@duration_decorator
 def extract_job_content(job_urls):
 	""" Extract the job offer content and store it in a list """
 
@@ -224,12 +238,8 @@ def create_xlsx_dir(xlsx_dir):
 def web_scrape_demo(location):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
-	t1 = dt.datetime.now()
 	job_urls = web_scrape(location)
 	list_job_offers = extract_job_content(job_urls)
-	delta_t = dt.datetime.now() - t1
-	print("Duration of the web scraping is " + str(delta_t.seconds) + " in seconds and " + str(
-		delta_t.microseconds) + " microseconds.")
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
 
@@ -245,13 +255,13 @@ def extract_job_offer_from_feed(feed_parsed):
 
 	list_job_offers = []
 	for entry in feed_parsed.entries:
-		t1 = dt.datetime.now()
 		current_job = extract_job_content_feed_url(entry.link)
-		delta_t = dt.datetime.now() - t1
-		print(f"Duration of scraping of URL:{entry.link} is : {delta_t.seconds} in seconds and {delta_t.microseconds} in microseconds.")
 		list_job_offers.append(current_job)
 
 	return list_job_offers
+
+
+
 
 
 def feedparser_demo():
