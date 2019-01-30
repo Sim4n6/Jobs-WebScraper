@@ -4,7 +4,7 @@ A simple python job offers web scraper using *beautifulsoup4* and *requests* mod
 
 App functionnalities : 
 --------
- - The app web scrapes from python.org/jobs offers board based on location.
+ - The app web scrapes from www.python.org/jobs offers board based on location.
  - It web scrapes from https://www.afpy.org/posts/emplois offers.
  - It uses Requests module for handling a simple HTTP get of URLs content.
  - It uses beautifulsoup4 module for parsing html content.
