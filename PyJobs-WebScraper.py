@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib import robotparser
+from functools import wraps
 import datetime as dt
 import logging
 import pprint
@@ -14,7 +15,7 @@ from JobOffer import JobOffer
 
 
 def duration_decorator(func):
-
+	@wraps(func)
 	def wrapper(*args, **kwargs):
 		t_before = dt.datetime.now()
 		output = func(*args, **kwargs)
