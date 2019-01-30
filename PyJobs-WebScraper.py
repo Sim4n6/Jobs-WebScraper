@@ -45,23 +45,23 @@ def extract_job_content_feed_url(feed_url_job):
 	if resp.status_code == 200:
 		soup = BeautifulSoup(resp.text, 'html.parser')
 
-		d_title, d_job, d_restr, d_req, d_company, d_cti, d_url = dict(), dict(), dict(), dict(), dict(), dict(), dict()
-		d_title["title"] = soup.find('h1').text
+		d_scraped = dict()
+		title = soup.find('h1').text
 		descr = soup.find('article')
 		if descr:
-			d_job["desc"] = descr.text
+			d_scraped["desc"] = descr.text
 		else:
-			d_job["desc"] = ""
-		d_restr["res"] = ""
-		d_req["req"] = ""
+			d_scraped["desc"] = ""
+		d_scraped["res"] = ""
+		d_scraped["req"] = ""
 		comp = soup.find('aside').find('h2')
 		if comp:
-			d_company["comp"] = comp.text
+			d_scraped["comp"] = comp.text
 		else:
-			d_company["comp"] = ""
-		d_cti["contact"] = soup.find('aside').text
-		d_url["url"] = feed_url_job
-		return JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti, d_url)
+			d_scraped["comp"] = ""
+		d_scraped["contact"] = soup.find('aside').text
+		url_s = feed_url_job
+		return JobOffer(title, d_scraped, url_s)
 
 	else:
 		logging.warning("A get URL did not been reached")
@@ -75,6 +75,7 @@ def web_scrape(location_rel_path):
 	resp = requests.get(url_2_scrape + location_rel_path)
 	logging.info("A get request made for URL : " + url_2_scrape + location_rel_path)
 
+	job_urls = []
 	if resp.status_code == 200:
 
 		# logging the result of the request code
@@ -127,49 +128,49 @@ def extract_job_content(job_urls):
 			logging.info("Started parsing " + url)
 
 			# Title parsing
-			d_title, d_company, d_req, d_restr, d_cti, d_job, d_url = dict(), dict(), dict(), dict(), dict(), dict(), dict()
-			d_title["title"] = soup.find('title').string
+			d_scraped = dict()
+			title = soup.find('title').string
 
 			# Company name parsing
 			lst_company = soup.find('h1', class_='listing-company')
 			if lst_company:
 				span_company = lst_company.find('span', class_='company-name')
-				d_company["company"] = span_company.contents[2].strip()
+				d_scraped["company"] = span_company.contents[2].strip()
 
 			# Requirements parsing
 			req = soup.find('h2', text='Requirements')
 			if req:
 				for k, p_req in enumerate(req.find_next_siblings('p')):
 					if p_req.string is not None:
-						d_req["req " + str(k)] = p_req.string
+						d_scraped["req " + str(k)] = p_req.string
 					else:
-						d_req["req " + str(k)] = "0"
+						d_scraped["req " + str(k)] = "0"
 
 			# Restrictions parsing
 			restr = soup.find('h2', text='Restrictions')
 			if restr:
 				ul = restr.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
-					d_restr["restr " + str(k)] = li.text
+					d_scraped["restr " + str(k)] = li.text
 
 			# Contact info parsing
 			cti = soup.find('h2', text='Contact Info')
 			if cti:
 				ul = cti.find_next_sibling('ul')
 				for k, li in enumerate(ul.find_all('li')):
-					d_cti["Contact " + str(k)] = li.text
+					d_scraped["Contact " + str(k)] = li.text
 
 			# Job description parsing
 			job_desc = soup.find('h2', text='Job Description')
 			if job_desc:
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
-					d_job["Job descr " + str(k)] = p.text
+					d_scraped["Job descr " + str(k)] = p.text
 
 			# Job URL
-			d_url["Url"] = url
+			url_s = url
 
 			# Current Job Offer stored in an object
-			current_job = JobOffer(d_title, d_job, d_restr, d_req, d_company, d_cti, d_url)
+			current_job = JobOffer(title, d_scraped,  url_s)
 			list_job_offers.append(current_job)
 
 		else:
@@ -233,12 +234,21 @@ def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 
 	# for each attribute of job_offer obj write the K,V to worksheet
 	row = 0
-	job_offer_attribs = vars(job_offer)
-	for V_attrib in job_offer_attribs.values():
-		for key, value in V_attrib.items():
-			worksheet.write(row, 0, key, cell_format)
-			worksheet.write(row, 1, value)
-			row += 1
+	worksheet.write(row, 0, "Titre", cell_format)
+	worksheet.write(row, 1, job_offer.job_title)
+	row += 1
+
+	worksheet.write(row, 0, "Url", cell_format)
+	worksheet.write(row, 1, job_offer.job_url)
+	row += 1
+
+	d_scraped = job_offer.job_scraped
+	for key, value in d_scraped.items():
+		worksheet.write(row, 0, key, cell_format)
+		worksheet.write(row, 1, value)
+		row += 1
+
+
 
 
 @log_decorator
