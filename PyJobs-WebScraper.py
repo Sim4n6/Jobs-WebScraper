@@ -27,6 +27,7 @@ def duration_decorator(func):
 
 
 def log_decorator(func):
+	@wraps(func)
 	def wrapper(*args, **kwargs):
 		logging.info(f"Call made to {func.__name__}")
 		return func(*args, **kwargs)
