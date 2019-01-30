@@ -166,11 +166,8 @@ def extract_job_content(job_urls):
 				for k, p in enumerate(job_desc.find_next_siblings('p')):
 					d_scraped["Job descr " + str(k)] = p.text
 
-			# Job URL
-			url_s = url
-
 			# Current Job Offer stored in an object
-			current_job = JobOffer(title, d_scraped,  url_s)
+			current_job = JobOffer(title, d_scraped,  url)
 			list_job_offers.append(current_job)
 
 		else:
