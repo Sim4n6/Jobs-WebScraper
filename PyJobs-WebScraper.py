@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from urllib import robotparser
+from urllib import robotparser, parse
 from functools import wraps
 import datetime as dt
 import logging
@@ -68,7 +68,7 @@ def extract_job_content_feed_url(feed_url_job):
 
 
 @log_decorator
-def web_scrape(location_rel_path):
+def web_scrape(location_rel_path, url_2_scrape):
 	""" Web scrape a url based on the location relative path """
 
 	# get a HTTP response from the URL
@@ -90,6 +90,7 @@ def web_scrape(location_rel_path):
 			sys.exit()
 
 		# extract job offer urls from py job location based board
+		main_url = parse.urlsplit(url_2_scrape).scheme + "://" + parse.urlsplit(url_2_scrape).netloc
 		job_urls = [main_url + li_job.h2.a.get('href') for li_job in soup.div.ol.find_all("li")]
 
 		# pretty printing of the
@@ -180,9 +181,14 @@ def extract_job_content(job_urls):
 
 
 @log_decorator
-def is_allowed_by_robot(base_url, url_2_scrape):
+def is_allowed_by_robot(url_2_scrape):
 	"""Check whether the robots.txt allows the scraping of the URL using robotparser from urllib """
 
+	# get the network location or base url
+	url_parsed = parse.urlsplit(url_2_scrape)
+	base_url = parse.urlsplit(url_2_scrape).scheme + "://" + url_parsed.netloc
+
+	# check robots.txt
 	robot_parser = robotparser.RobotFileParser()
 	robot_parser.set_url(base_url + "/robots.txt")
 	robot_parser.read()
@@ -246,8 +252,6 @@ def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 		row += 1
 
 
-
-
 @log_decorator
 def create_xlsx_dir(xlsx_dir):
 	""" Create a xlsx directory """
@@ -259,10 +263,10 @@ def create_xlsx_dir(xlsx_dir):
 
 
 @log_decorator
-def web_scrape_demo(location):
+def web_scrape_demo(location, url_2_scrape):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
-	job_urls = web_scrape(location)
+	job_urls = web_scrape(location, url_2_scrape)
 	list_job_offers = extract_job_content(job_urls)
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
@@ -302,23 +306,22 @@ def feedparser_demo():
 
 if __name__ == "__main__":
 
-	main_url = "https://www.python.org"
-	url_2_scrape = main_url + "/jobs/location/"
+	url_2_scrape = "https://www.python.org/jobs/location/"
 
 	logging.basicConfig(filename='journal.log', filemode='w', level=logging.INFO)
 	logging.info("The app " + str(sys.argv[0]) + " started at " + str(dt.datetime.now()))
 
-	if is_allowed_by_robot(main_url, url_2_scrape):
+	if is_allowed_by_robot(url_2_scrape):
 		print("You can fetch : " + url_2_scrape)
 
 		# Demo 1 : Web scrape the "telecommute", extract the job offer urls and then store to xlsx
-		web_scrape_demo("telecommute")
+		web_scrape_demo("telecommute", url_2_scrape)
 
 		# Demo 2 : Web scrape the toronto-ontario-canada, extract the job offer urls and then store to xlsx
-		web_scrape_demo("toronto-ontario-canada")
+		web_scrape_demo("toronto-ontario-canada", url_2_scrape)
 
 		# Demo 3 : Web scrape the montreal-quebec-canada, extract the job offer urls and then store the results to xlsx
-		web_scrape_demo("montreal-quebec-canada")
+		web_scrape_demo("montreal-quebec-canada", url_2_scrape)
 
 	else:
 		print("You cannot fetch : " + url_2_scrape + "*")
