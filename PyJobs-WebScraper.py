@@ -38,12 +38,15 @@ def log_decorator(func):
 
 
 def serializing(set_urls, filename):
-	with open(filename, 'wb') as f:
+	# Create directory "saved_jobs" locally
+	create_xlsx_dir("saved_jobs")
+
+	with open("saved_jobs/"+filename, 'wb') as f:
 		pickle.dump(set_urls, f)
 
 
 def deserializing(filename):
-	with open(filename, 'rb') as f:
+	with open("saved_jobs/"+filename, 'rb') as f:
 		set_urls = pickle.load(f)
 	return set_urls
 
