@@ -9,9 +9,12 @@ import xlsxwriter
 import sys
 import os
 import feedparser
+import pickle
 
 # user modules
 from JobOffer import JobOffer
+
+sys.setrecursionlimit(10_000)
 
 
 def duration_decorator(func):
@@ -32,6 +35,17 @@ def log_decorator(func):
 		logging.info(f"Call made to {func.__name__}")
 		return func(*args, **kwargs)
 	return wrapper
+
+
+def serializing(set_urls, filename):
+	with open(filename, 'wb') as f:
+		pickle.dump(set_urls, f)
+
+
+def deserializing(filename):
+	with open(filename, 'rb') as f:
+		set_urls = pickle.load(f)
+	return set_urls
 
 
 @duration_decorator
@@ -110,7 +124,7 @@ def web_scrape(location_rel_path, url_2_scrape):
 def extract_job_content(job_urls):
 	""" Extract the job offer content and store it in a list """
 
-	list_job_offers = []
+	list_job_offers = set()
 	for url in job_urls:
 
 		# HTTP get request for each URL content
@@ -145,7 +159,7 @@ def extract_job_content(job_urls):
 					if p_req.string is not None:
 						d_scraped["req " + str(k)] = p_req.string
 					else:
-						d_scraped["req " + str(k)] = "0"
+						d_scraped["req " + str(k)] = ""
 
 			# Restrictions parsing
 			restr = soup.find('h2', text='Restrictions')
@@ -169,7 +183,7 @@ def extract_job_content(job_urls):
 
 			# Current Job Offer stored in an object
 			current_job = JobOffer(title, d_scraped,  url)
-			list_job_offers.append(current_job)
+			list_job_offers.add(current_job)
 
 		else:
 
@@ -268,6 +282,7 @@ def web_scrape_demo(location, url_2_scrape):
 
 	job_urls = web_scrape(location, url_2_scrape)
 	list_job_offers = extract_job_content(job_urls)
+	serializing(list_job_offers, "scraped_urls__"+location)
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
 
@@ -283,10 +298,10 @@ def print_feed_infos(feed_parsed):
 @log_decorator
 def extract_job_offer_from_feed(feed_parsed):
 
-	list_job_offers = []
+	list_job_offers = set()
 	for entry in feed_parsed.entries:
 		current_job = extract_job_content_feed_url(entry.link)
-		list_job_offers.append(current_job)
+		list_job_offers.add(current_job)
 
 	return list_job_offers
 
@@ -300,6 +315,8 @@ def feedparser_demo():
 	print_feed_infos(feed_parsed)
 	# store feed infos of entries to xlsx
 	lst_job_offers = extract_job_offer_from_feed(feed_parsed)
+	# serializing to scraped_urls file
+	serializing(lst_job_offers, "scraped_urls__"+"afpy")
 	# save to xlsx file
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__afpy" + ".xlsx", lst_job_offers)
 
