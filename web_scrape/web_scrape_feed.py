@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import logging
 
-from Decorators import log_decorator, duration_decorator
-from csv_manip import from_csv, to_csv
+from common.Decorators import log_decorator, duration_decorator
+from common.csv_manip import from_csv, to_csv
 from JobOffer import JobOffer
 
 

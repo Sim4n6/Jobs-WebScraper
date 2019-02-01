@@ -3,7 +3,7 @@ import xlsxwriter
 import os
 import datetime as dt
 
-from Decorators import log_decorator
+from common.Decorators import log_decorator
 
 
 @log_decorator

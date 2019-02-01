@@ -5,7 +5,7 @@ import logging
 import pprint
 import sys
 
-from Decorators import log_decorator, duration_decorator
+from common.Decorators import log_decorator, duration_decorator
 from JobOffer import JobOffer
 
 
