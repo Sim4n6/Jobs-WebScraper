@@ -9,7 +9,7 @@ import xlsxwriter
 import sys
 import os
 import feedparser
-import pickle
+import csv
 
 # user modules
 from JobOffer import JobOffer
@@ -37,17 +37,22 @@ def log_decorator(func):
 	return wrapper
 
 
-def serializing(set_urls, filename):
+def to_csv(set_urls, csvfilename):
 	# Create directory "saved_jobs" locally
 	create_xlsx_dir("saved_jobs")
 
-	with open("saved_jobs/"+filename, 'wb') as f:
-		pickle.dump(set_urls, f)
+	with open("saved_jobs/"+csvfilename, 'w', newline='') as csvfile:
+		csv_writer = csv.writer(csvfile, delimiter=' ')
+		for url in set_urls:
+			csv_writer.writerow([url])
 
 
-def deserializing(filename):
-	with open("saved_jobs/"+filename, 'rb') as f:
-		set_urls = pickle.load(f)
+def from_csv(csvfilename):
+	set_urls = set()
+	with open("saved_jobs/" + csvfilename, 'r') as csvfile:
+		csv_reader = csv.reader(csvfile, delimiter=' ')
+		for row in csv_reader:
+			set_urls.add(*row)
 	return set_urls
 
 
@@ -71,9 +76,9 @@ def extract_job_content_feed_url(feed_url_job):
 			d_scraped["desc"] = ""
 		d_scraped["res"] = ""
 		d_scraped["req"] = ""
-		comp = soup.find('aside').find('h2')
+		comp = soup.find('aside')
 		if comp:
-			d_scraped["comp"] = comp.text
+			d_scraped["comp"] = comp.find('h2').text
 		else:
 			d_scraped["comp"] = ""
 		d_scraped["contact"] = soup.find('aside').text
@@ -283,9 +288,18 @@ def create_xlsx_dir(xlsx_dir):
 def web_scrape_demo(location, url_2_scrape):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
+	urls_from_csv = from_csv("scraped_urls__" + location + ".csv")
+	urls = set()
+	url = ""
 	job_urls = web_scrape(location, url_2_scrape)
-	list_job_offers = extract_job_content(job_urls)
-	serializing(list_job_offers, "scraped_urls__"+location)
+	if url in job_urls and url not in urls_from_csv:
+		urls.add(url)
+
+	list_job_offers = extract_job_content(urls)
+
+	# FIXME in case urls contain something it need to be added to csv
+	to_csv(job_urls, "scraped_urls__" + location + ".csv")
+
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
 
@@ -295,16 +309,28 @@ def print_feed_infos(feed_parsed):
 
 	print(">>", feed_parsed.feed.title, feed_parsed.feed.link)
 	print("lang:", feed_parsed.feed.language, "version:", feed_parsed.version)
-	print("Number of entries to be parsed : ", len(feed_parsed.entries))
+	print("Number of entries can be parsed : ", len(feed_parsed.entries))
 
 
 @log_decorator
 def extract_job_offer_from_feed(feed_parsed):
 
-	list_job_offers = set()
+	# don't web scrape twice
+	urls_from_csv = from_csv("scraped_urls__" + "afpy" + ".csv")
+	urls = set()
 	for entry in feed_parsed.entries:
-		current_job = extract_job_content_feed_url(entry.link)
+		if entry.link not in urls_from_csv:
+			urls.add(entry.link)
+
+	list_job_offers = set()
+	print("Number of entries will be parsed : ", len(urls))
+	for url in urls:
+		current_job = extract_job_content_feed_url(url)
 		list_job_offers.add(current_job)
+
+	# to csv
+	# FIXME in case of urls var contains a url,
+	to_csv(urls_from_csv, "scraped_urls__" + "afpy" + ".csv")
 
 	return list_job_offers
 
@@ -318,8 +344,6 @@ def feedparser_demo():
 	print_feed_infos(feed_parsed)
 	# store feed infos of entries to xlsx
 	lst_job_offers = extract_job_offer_from_feed(feed_parsed)
-	# serializing to scraped_urls file
-	serializing(lst_job_offers, "scraped_urls__"+"afpy")
 	# save to xlsx file
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__afpy" + ".xlsx", lst_job_offers)
 
