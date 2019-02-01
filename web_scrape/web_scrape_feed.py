@@ -6,6 +6,7 @@ from Decorators import log_decorator, duration_decorator
 from csv_manip import from_csv, to_csv
 from JobOffer import JobOffer
 
+
 @log_decorator
 def print_feed_infos(feed_parsed):
 	""" print feed informations to stdout """
