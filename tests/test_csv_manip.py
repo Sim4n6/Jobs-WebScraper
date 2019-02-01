@@ -1,17 +1,19 @@
 import os
-from unittest import TestCase
+from unittest import TestCase, main
 
 from common.csv_manip import to_csv, from_csv
 
 
 class TestCsvManip(TestCase):
 
+	def setUp(self):
+		self.urls = ["www.google.fr", "https://www.python.org", "aaa"]
+
 	def test_saved_jobs_dir_exists(self):
 		self.assertTrue(os.path.exists("../saved_jobs/"))
 
 	def test_to_csv(self):
-		urls = ["www.google.fr", "https://www.python.org", "aaa"]
-		to_csv(urls, "file.csv")
+		to_csv(self.urls, "file.csv")
 
 		lines = []
 		with open("../saved_jobs/file.csv", "r") as csvfile:
@@ -23,6 +25,9 @@ class TestCsvManip(TestCase):
 		self.assertEqual(lines[2].strip(), "aaa")
 
 	def test_from_csv(self):
-		urls = ("www.google.fr", "https://www.python.org", "aaa")
 		urls_from_csv = from_csv("file.csv")
-		self.assertEqual(sorted(urls), sorted(urls_from_csv))
+		self.assertEqual(sorted(self.urls), sorted(urls_from_csv))
+
+
+if __name__ == '__main__':
+	main()
