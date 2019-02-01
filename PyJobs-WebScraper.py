@@ -14,8 +14,6 @@ import csv
 # user modules
 from JobOffer import JobOffer
 
-sys.setrecursionlimit(10_000)
-
 
 def duration_decorator(func):
 	@wraps(func)
