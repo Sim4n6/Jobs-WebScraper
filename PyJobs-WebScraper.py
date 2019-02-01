@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from urllib import robotparser, parse
-from functools import wraps
 import datetime as dt
 import logging
 import pprint
@@ -13,28 +12,10 @@ import csv
 
 # user modules
 from JobOffer import JobOffer
+from Decorators import duration_decorator, log_decorator
 
 
-def duration_decorator(func):
-	@wraps(func)
-	def wrapper(*args, **kwargs):
-		t_before = dt.datetime.now()
-		output = func(*args, **kwargs)
-		delta_t = dt.datetime.now() - t_before
-		print(f"Execution duration of {func.__name__} is : {delta_t.seconds} in seconds and {delta_t.microseconds} in microseconds.")
-		return output
-
-	return wrapper
-
-
-def log_decorator(func):
-	@wraps(func)
-	def wrapper(*args, **kwargs):
-		logging.info(f"Call made to {func.__name__}")
-		return func(*args, **kwargs)
-	return wrapper
-
-
+@log_decorator
 def to_csv(set_urls, csvfilename):
 	# Create directory "saved_jobs" locally
 	create_xlsx_dir("saved_jobs")
@@ -45,6 +26,7 @@ def to_csv(set_urls, csvfilename):
 			csv_writer.writerow([url])
 
 
+@log_decorator
 def from_csv(csvfilename):
 	set_urls = set()
 	with open("saved_jobs/" + csvfilename, 'r') as csvfile:
@@ -342,10 +324,13 @@ def feedparser_demo():
 	# feed parsing
 	feed_url = "https://www.afpy.org/feed/emplois/rss.xml"
 	feed_parsed = feedparser.parse(feed_url)
+
 	# print feed informations to stdout
 	print_feed_infos(feed_parsed)
+
 	# store feed infos of entries to xlsx
 	lst_job_offers = extract_job_offer_from_feed(feed_parsed)
+
 	# save to xlsx file
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__afpy" + ".xlsx", lst_job_offers)
 
