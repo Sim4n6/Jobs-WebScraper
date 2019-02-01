@@ -1,5 +1,6 @@
-from unittest import TestCase
 import os
+from unittest import TestCase
+
 from common.csv_manip import to_csv, from_csv
 
 

@@ -1,12 +1,13 @@
-from bs4 import BeautifulSoup
-from urllib import robotparser, parse
-import requests
 import logging
 import pprint
 import sys
+from urllib import robotparser, parse
 
-from common.Decorators import log_decorator, duration_decorator
+import requests
+from bs4 import BeautifulSoup
+
 from JobOffer import JobOffer
+from common.Decorators import log_decorator, duration_decorator
 
 
 @log_decorator
@@ -110,7 +111,7 @@ def extract_job_content(job_urls):
 					d_scraped["Job descr " + str(k)] = p.text
 
 			# Current Job Offer stored in an object
-			current_job = JobOffer(title, d_scraped,  url)
+			current_job = JobOffer(title, d_scraped, url)
 			list_job_offers.add(current_job)
 
 		else:
@@ -143,4 +144,3 @@ def is_allowed_by_robot(url_2_scrape):
 		logging.warning("It is not allowed to web scrape " + url_2_scrape)
 
 	return is_allowed
-

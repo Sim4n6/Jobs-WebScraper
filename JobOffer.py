@@ -8,5 +8,3 @@ class JobOffer:
 
 	def __str__(self):
 		print("------> ", self.job_title)
-
-

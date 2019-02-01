@@ -1,10 +1,11 @@
-import requests
-from bs4 import BeautifulSoup
 import logging
 
+import requests
+from bs4 import BeautifulSoup
+
+from JobOffer import JobOffer
 from common.Decorators import log_decorator, duration_decorator
 from common.csv_manip import from_csv, to_csv
-from JobOffer import JobOffer
 
 
 @log_decorator
@@ -51,7 +52,6 @@ def extract_job_content_feed_url(feed_url_job):
 
 @log_decorator
 def extract_job_offer_from_feed(feed_parsed):
-
 	# don't web scrape twice
 	urls_from_csv = from_csv("scraped_urls__" + "afpy" + ".csv")
 	urls = set()
@@ -72,4 +72,3 @@ def extract_job_offer_from_feed(feed_parsed):
 	to_csv(urls_from_csv, "scraped_urls__" + "afpy" + ".csv")
 
 	return list_job_offers
-

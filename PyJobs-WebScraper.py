@@ -1,14 +1,15 @@
 import datetime as dt
 import logging
 import sys
+
 import feedparser
 
 # user modules
 from common.Decorators import log_decorator
-from common.csv_manip import from_csv, to_csv
 from common.Xlsx_manip import save_to_xlsx
+from common.csv_manip import from_csv, to_csv
+from web_scrape.web_scrape_board import extract_job_content, web_scrape, is_allowed_by_robot
 from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_infos
-from web_scrape.web_scrape_board import  extract_job_content, web_scrape, is_allowed_by_robot
 
 
 @log_decorator
