@@ -297,7 +297,9 @@ def web_scrape_demo(location, url_2_scrape):
 
 	list_job_offers = extract_job_content(urls)
 
-	# FIXME in case urls contain something it need to be added to csv
+	# FIXME in case urls contain something it need to be added to csv , try it now
+	for url in urls:
+		job_urls.append(url)
 	to_csv(job_urls, "scraped_urls__" + location + ".csv")
 
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
@@ -329,7 +331,9 @@ def extract_job_offer_from_feed(feed_parsed):
 		list_job_offers.add(current_job)
 
 	# to csv
-	# FIXME in case of urls var contains a url,
+	# FIXME in case of urls var contains a url, check now
+	for url in urls:
+		urls_from_csv.append(url)
 	to_csv(urls_from_csv, "scraped_urls__" + "afpy" + ".csv")
 
 	return list_job_offers
