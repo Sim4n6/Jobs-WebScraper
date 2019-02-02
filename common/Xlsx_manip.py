@@ -2,7 +2,8 @@ import datetime as dt
 import logging
 import os
 
-import xlsxwriter
+from openpyxl import Workbook
+from openpyxl.styles import Font, colors
 
 from common.Decorators import log_decorator
 
@@ -17,43 +18,34 @@ def save_to_xlsx(xlsx_filename, list_job_offers):
 	create_xlsx_dir("saved_jobs")
 
 	# Save to excel file
-	workbook = xlsxwriter.Workbook("saved_jobs" + "/" + xlsx_filename)
+	workbook = Workbook()
 
 	# personnalisation
-	cell_format = workbook.add_format()
-	cell_format.set_bold()
-	cell_format.set_font_color('red')
+	bold_font = Font(color=colors.RED, bold=True)
 
 	for i, job_offer in enumerate(list_job_offers):
 		# create a sheet for each job offer
-		worksheet = workbook.add_worksheet(f"Sheet Offer {str(i)}")
+		worksheet = workbook.create_sheet(f"Sheet Offer {str(i)}")
 
 		# write job_offer to worksheet
-		write_job_offer_2_worksheet(job_offer, worksheet, cell_format)
+		write_job_offer_2_worksheet(job_offer, worksheet, bold_font)
 
 	# close workbook
-	workbook.close()
+	workbook.save("saved_jobs" + "/" + xlsx_filename)
 
 
 @log_decorator
 def write_job_offer_2_worksheet(job_offer, worksheet, cell_format):
 	""" Write job offer object to worksheet """
 
-	# for each attribute of job_offer obj write the K,V to worksheet
-	row = 0
-	worksheet.write(row, 0, "Titre", cell_format)
-	worksheet.write(row, 1, job_offer.job_title)
-	row += 1
-
-	worksheet.write(row, 0, "Url", cell_format)
-	worksheet.write(row, 1, job_offer.job_url)
-	row += 1
+	worksheet['A1'].font = cell_format
+	worksheet.append(["Titre", job_offer.job_title])
+	worksheet['A2'].font = cell_format
+	worksheet.append(["Url", job_offer.job_url])
 
 	d_scraped = job_offer.job_scraped
 	for key, value in d_scraped.items():
-		worksheet.write(row, 0, key, cell_format)
-		worksheet.write(row, 1, value)
-		row += 1
+		worksheet.append([key, value])
 
 
 @log_decorator
