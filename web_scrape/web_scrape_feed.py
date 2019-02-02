@@ -1,9 +1,10 @@
 import logging
+import os
 
 import requests
 from bs4 import BeautifulSoup
 
-from JobOffer import JobOffer
+from job_offer import JobOffer
 from common.Decorators import log_decorator, duration_decorator
 from common.csv_manip import from_csv, to_csv
 
@@ -53,7 +54,9 @@ def extract_job_content_feed_url(feed_url_job):
 @log_decorator
 def extract_job_offer_from_feed(feed_parsed):
 	# don't web scrape twice
-	urls_from_csv = from_csv("scraped_urls__" + "afpy" + ".csv")
+	urls_from_csv = set()
+	if os.path.exists("scraped_urls__" + "afpy" + ".csv"):
+		urls_from_csv = from_csv("scraped_urls__" + "afpy" + ".csv")
 	urls = set()
 	for entry in feed_parsed.entries:
 		if entry.link not in urls_from_csv:
@@ -68,7 +71,7 @@ def extract_job_offer_from_feed(feed_parsed):
 	# to csv
 	# FIXME in case of urls var contains a url, check now
 	for url in urls:
-		urls_from_csv.append(url)
+		urls_from_csv.add(url)
 	to_csv(urls_from_csv, "scraped_urls__" + "afpy" + ".csv")
 
 	return list_job_offers

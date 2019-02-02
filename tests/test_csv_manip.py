@@ -9,14 +9,11 @@ class TestCsvManip(TestCase):
 	def setUp(self):
 		self.urls = ["www.google.fr", "https://www.python.org", "aaa"]
 
-	def test_saved_jobs_dir_exists(self):
-		self.assertTrue(os.path.exists("../saved_jobs/"))
-
 	def test_to_csv(self):
 		to_csv(self.urls, "file.csv")
 
 		lines = []
-		with open("../saved_jobs/file.csv", "r") as csvfile:
+		with open("file.csv", "r") as csvfile:
 			for line in csvfile.readlines():
 				lines.append(line)
 
@@ -25,8 +22,13 @@ class TestCsvManip(TestCase):
 		self.assertEqual(lines[2].strip(), "aaa")
 
 	def test_from_csv(self):
+		to_csv(self.urls, "file.csv")
 		urls_from_csv = from_csv("file.csv")
 		self.assertEqual(sorted(self.urls), sorted(urls_from_csv))
+
+	def tearDown(self):
+		if os.path.exists("file.csv"):
+			os.remove("file.csv")
 
 
 if __name__ == '__main__':
