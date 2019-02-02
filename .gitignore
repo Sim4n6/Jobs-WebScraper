@@ -115,4 +115,5 @@ journal.log
 
 # saved xlsx files
 saved_jobs
+scraped_*
 
