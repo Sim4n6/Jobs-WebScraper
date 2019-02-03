@@ -30,7 +30,8 @@ class TestXlsxManip(TestCase):
 
 	def tearDown(self):
 		if os.path.exists("./dir_for_xlsx"):
-			os.remove("./dir_for_xlsx/xlsx_file.xlsx")
+			if os.path.exists("./dir_for_xlsx/xlsx_file.xlsx"):
+				os.remove("./dir_for_xlsx/xlsx_file.xlsx")
 			os.removedirs("./dir_for_xlsx")
 
 
