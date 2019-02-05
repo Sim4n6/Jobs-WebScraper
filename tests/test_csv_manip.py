@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase, main
 
-from common.csv_manip import to_csv, from_csv
+from common.csv_manip import to_csv, from_csv, is_csv_exist
 
 
 class TestCsvManip(TestCase):
@@ -25,6 +25,10 @@ class TestCsvManip(TestCase):
 		to_csv(self.urls, "file.csv")
 		urls_from_csv = from_csv("file.csv")
 		self.assertEqual(sorted(self.urls), sorted(urls_from_csv))
+
+	def test_is_csv_exist(self):
+		with open("file.csv", "w"):
+			self.assertTrue(is_csv_exist("file.csv"))
 
 	def tearDown(self):
 		if os.path.exists("file.csv"):
