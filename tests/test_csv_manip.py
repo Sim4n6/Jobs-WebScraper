@@ -9,6 +9,11 @@ class TestCsvManip(TestCase):
 	def setUp(self):
 		self.urls = ["www.google.fr", "https://www.python.org", "aaa"]
 
+	def test_to_csv_empty(self):
+		empty_lst = []
+		to_csv(empty_lst, "file_empty.csv")
+		self.assertFalse(is_csv_exist("file_empty.csv"))
+
 	def test_to_csv(self):
 		to_csv(self.urls, "file.csv")
 
@@ -33,6 +38,9 @@ class TestCsvManip(TestCase):
 	def tearDown(self):
 		if os.path.exists("file.csv"):
 			os.remove("file.csv")
+
+		if os.path.exists("file_empty.csv"):
+			os.remove("file_empty.csv")
 
 
 if __name__ == '__main__':
