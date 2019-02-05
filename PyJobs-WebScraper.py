@@ -17,8 +17,8 @@ def web_scrape_demo(location, url_2_scrape):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
 	urls = set()
-	if is_csv_exist("./saved_jobs/" + "scraped_urls__" + location + ".csv"):
-		urls_from_csv = from_csv("./saved_jobs/" + "scraped_urls__" + location + ".csv")
+	if is_csv_exist( "scraped_urls__" + location + ".csv"):
+		urls_from_csv = from_csv("scraped_urls__" + location + ".csv")
 	else:
 		urls_from_csv = set()
 
