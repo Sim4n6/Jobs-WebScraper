@@ -1,6 +1,6 @@
 import sqlite3
 
-from common.Decorators import log_decorator
+from sources.common.Decorators import log_decorator
 
 
 @log_decorator

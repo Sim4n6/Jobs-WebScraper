@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase, main
 
-from common.csv_manip import to_csv, from_csv, is_csv_exist
+from sources.common.csv_manip import to_csv, from_csv, is_csv_exist
 
 
 class TestCsvManip(TestCase):

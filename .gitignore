@@ -114,8 +114,6 @@ venv.bak/
 journal.log
 
 # saved xlsx files
-saved_jobs
-scraped_*
-
+sources/saved_jobs
 /tests/links.db
-/links.db
+/sources/links.db

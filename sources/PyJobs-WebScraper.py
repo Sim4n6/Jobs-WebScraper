@@ -5,11 +5,11 @@ import sys
 import feedparser
 
 # user modules
-from common.Decorators import log_decorator
-from common.Xlsx_manip import save_to_xlsx
-from common.db_manip import create_table_db, add_job_link, extract_all_joblinks, set_state
-from web_scrape.web_scrape_board import extract_job_content, web_scrape, is_allowed_by_robot
-from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_infos
+from sources.common.Decorators import log_decorator
+from sources.common.Xlsx_manip import save_to_xlsx
+from sources.common.db_manip import create_table_db, add_job_link, extract_all_joblinks, set_state
+from sources.web_scrape.web_scrape_board import extract_job_content, web_scrape, is_allowed_by_robot
+from sources.web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_infos
 
 
 @log_decorator

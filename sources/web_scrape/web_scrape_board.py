@@ -6,8 +6,8 @@ from urllib import robotparser, parse
 import requests
 from bs4 import BeautifulSoup
 
-from job_offer import JobOffer
-from common.Decorators import log_decorator, duration_decorator
+from sources.job_offer import JobOffer
+from sources.common.Decorators import log_decorator, duration_decorator
 
 
 @log_decorator

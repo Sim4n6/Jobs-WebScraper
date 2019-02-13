@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase, main
 
-from common.db_manip import create_table_db, add_job_link, is_scrarped_job_link, count_joblinks, delete_table_db,\
+from sources.common.db_manip import create_table_db, add_job_link, is_scrarped_job_link, count_joblinks, delete_table_db,\
 	check_if_exist, extract_all_joblinks, set_state, get_state
 
 

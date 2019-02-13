@@ -4,8 +4,8 @@ import os
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
-from common.Xlsx_manip import create_xlsx_dir, write_job_offer_2_worksheet, save_to_xlsx
-from job_offer import JobOffer
+from sources.common.Xlsx_manip import create_xlsx_dir, write_job_offer_2_worksheet
+from sources.job_offer import JobOffer
 
 
 class TestXlsxManip(TestCase):

@@ -5,7 +5,7 @@ import os
 from openpyxl import Workbook
 from openpyxl.styles import Font, colors
 
-from common.Decorators import log_decorator
+from sources.common.Decorators import log_decorator
 
 
 @log_decorator

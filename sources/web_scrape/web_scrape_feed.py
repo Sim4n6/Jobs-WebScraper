@@ -3,9 +3,9 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
-from job_offer import JobOffer
-from common.Decorators import log_decorator, duration_decorator
-from common.db_manip import create_table_db, add_job_link, extract_all_joblinks, set_state, get_state
+from sources.job_offer import JobOffer
+from sources.common.Decorators import log_decorator, duration_decorator
+from sources.common.db_manip import create_table_db, add_job_link, extract_all_joblinks, set_state
 
 
 @log_decorator
