@@ -56,3 +56,4 @@ On Windows for html report :
      > coverage run PyJobs-WebScraper.py
      > coverage html 
 
+Then visit htmlcov/index.html in your browser

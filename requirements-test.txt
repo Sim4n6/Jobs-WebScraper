@@ -3,3 +3,4 @@ feedparser>=5.2.1
 requests>=2.21.0
 openpyxl>=2.5.14
 vulture
+coverage
