@@ -36,8 +36,8 @@ Run
 ---
 On linux :
 
-    $ python PyJobs-WebScraper.py
+    $ python3 PyJobs-WebScraper.py
 
 On Windows :
 
-    > python PyJobs-WebScraper.py
+    > python3 PyJobs-WebScraper.py
