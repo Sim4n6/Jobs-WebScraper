@@ -117,3 +117,4 @@ journal.log
 sources/saved_jobs
 /tests/links.db
 /sources/links.db
+/links.db
