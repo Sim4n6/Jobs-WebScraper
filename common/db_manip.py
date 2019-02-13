@@ -26,14 +26,39 @@ def delete_db():
 
 
 @log_decorator
-def add_job_link(job_link, state):
+def add_job_link(job_link):
 	""" add a job_link to the database with its state """
 	if not check_if_exist(job_link):
 		conn = sqlite3.connect("links.db")
 		cur = conn.cursor()
-		cur.execute(""" INSERT OR REPLACE INTO links VALUES (?,?) """, (job_link, state))
+		cur.execute(""" INSERT INTO links VALUES (?,?) """, (job_link, -1))
 		conn.commit()
 		conn.close()
+
+
+@log_decorator
+def set_state(job_link, state):
+	"""" set a state to job_link if joblink exists in database """
+
+	if check_if_exist(job_link):
+		conn = sqlite3.connect("links.db")
+		cur = conn.cursor()
+		cur.execute(""" UPDATE links SET state=? WHERE joblink=?""", (state, job_link))
+		conn.commit()
+		conn.close()
+
+
+def get_state(job_link):
+	if check_if_exist(job_link):
+		conn = sqlite3.connect("links.db")
+		cur = conn.cursor()
+		cur.execute(""" SELECT * FROM links WHERE joblink=?""", (job_link, ))
+		fetched_one = cur.fetchone()
+		conn.close()
+		return fetched_one[1]
+	else:
+		return -1
+
 
 
 @log_decorator

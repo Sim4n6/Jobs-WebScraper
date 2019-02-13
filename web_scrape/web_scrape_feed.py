@@ -1,12 +1,11 @@
 import logging
-import os
 
 import requests
 from bs4 import BeautifulSoup
 
 from job_offer import JobOffer
 from common.Decorators import log_decorator, duration_decorator
-from common.csv_manip import from_csv, to_csv
+from common.db_manip import create_db, add_job_link, extract_all_joblinks, set_state, get_state
 
 
 @log_decorator
@@ -53,25 +52,27 @@ def extract_job_content_feed_url(feed_url_job):
 
 @log_decorator
 def extract_job_offer_from_feed(feed_parsed):
-	# don't web scrape twice
-	urls_from_csv = set()
-	if os.path.exists("scraped_urls__" + "afpy" + ".csv"):
-		urls_from_csv = from_csv("scraped_urls__" + "afpy" + ".csv")
-	urls = set()
+
+	create_db()
 	for entry in feed_parsed.entries:
-		if entry.link not in urls_from_csv:
-			urls.add(entry.link)
+		add_job_link(entry.link)
+
+	urls_scraped = extract_all_joblinks(1)
+	urls_not_scraped = extract_all_joblinks(0)
+
+	urls = set()
+	for url in urls_not_scraped:
+		if url not in urls_scraped:
+			urls.add(url)
+	print("Number of entries will be parsed : ", len(urls))
 
 	list_job_offers = set()
-	print("Number of entries will be parsed : ", len(urls))
 	for url in urls:
 		current_job = extract_job_content_feed_url(url)
 		list_job_offers.add(current_job)
 
-	# to csv
-	# FIXME in case of urls var contains a url, check now
 	for url in urls:
-		urls_from_csv.add(url)
-	to_csv(urls_from_csv, "scraped_urls__" + "afpy" + ".csv")
+		add_job_link(url)
+		set_state(url, 1)
 
 	return list_job_offers

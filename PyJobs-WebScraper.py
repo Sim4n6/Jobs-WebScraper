@@ -7,7 +7,7 @@ import feedparser
 # user modules
 from common.Decorators import log_decorator
 from common.Xlsx_manip import save_to_xlsx
-from common.db_manip import create_db, add_job_link, extract_all_joblinks
+from common.db_manip import create_db, add_job_link, extract_all_joblinks, set_state
 from web_scrape.web_scrape_board import extract_job_content, web_scrape, is_allowed_by_robot
 from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_infos
 
@@ -19,7 +19,7 @@ def web_scrape_demo(location, url_2_scrape):
 	create_db()
 	job_urls = web_scrape(location, url_2_scrape)
 	for url in job_urls:
-		add_job_link(url, 1)
+		add_job_link(url)
 
 	urls_scraped = extract_all_joblinks(1)
 	urls_not_scraped = extract_all_joblinks(0)
@@ -30,6 +30,9 @@ def web_scrape_demo(location, url_2_scrape):
 			urls.add(url)
 
 	list_job_offers = extract_job_content(urls)
+	for url in urls:
+		add_job_link(url)
+		set_state(url, 1)
 
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 
