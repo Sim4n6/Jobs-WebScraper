@@ -28,7 +28,7 @@ def delete_db():
 @log_decorator
 def add_job_link(job_link, state):
 	""" add a job_link to the database with its state """
-	if not check_if_exist(job_link, state):
+	if not check_if_exist(job_link):
 		conn = sqlite3.connect("links.db")
 		cur = conn.cursor()
 		cur.execute(""" INSERT OR REPLACE INTO links VALUES (?,?) """, (job_link, state))
@@ -37,13 +37,14 @@ def add_job_link(job_link, state):
 
 
 @log_decorator
-def check_if_exist(job_link, state):
-	""" return boolean if joblink/state exists in links table """
+def check_if_exist(job_link):
+	""" return boolean if joblink exists in links table """
 
 	conn = sqlite3.connect("links.db")
 	cur = conn.cursor()
-	cur.execute(""" SELECT * FROM links WHERE joblink=? and state=?""", (job_link, state))
+	cur.execute(""" SELECT * FROM links WHERE joblink=? """, (job_link, ))
 	fetched_value = cur.fetchone()
+	conn.close()
 	if fetched_value is None:
 		return False
 	else:
@@ -57,6 +58,7 @@ def is_scrarped_job_link(job_link):
 	cur = conn.cursor()
 	cur.execute(""" SELECT * FROM links WHERE joblink=? """, (job_link,))
 	one_fetched = cur.fetchone()
+	conn.close()
 	if one_fetched is None:
 		return 0
 	else:
@@ -70,4 +72,20 @@ def count_joblinks():
 	cur = conn.cursor()
 	cur.execute(""" SELECT * FROM links """)
 	fetched_all = cur.fetchall()
+	conn.close()
 	return len(fetched_all)
+
+
+@log_decorator
+def extract_all_joblinks(state):
+	""" extract all joblinks with state arg """
+	conn = sqlite3.connect("links.db")
+	cur = conn.cursor()
+	cur.execute(""" SELECT * FROM links WHERE state=?""", (state, ))
+	fetched_all = cur.fetchall()
+	conn.close()
+	urls = []
+	for fetched in fetched_all:
+		urls.append(fetched[0])
+
+	return urls

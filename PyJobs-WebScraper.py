@@ -7,7 +7,7 @@ import feedparser
 # user modules
 from common.Decorators import log_decorator
 from common.Xlsx_manip import save_to_xlsx
-from common.csv_manip import from_csv, to_csv, is_csv_exist
+from common.db_manip import create_db, add_job_link, extract_all_joblinks
 from web_scrape.web_scrape_board import extract_job_content, web_scrape, is_allowed_by_robot
 from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_infos
 
@@ -16,23 +16,20 @@ from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_i
 def web_scrape_demo(location, url_2_scrape):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
-	urls = set()
-	if is_csv_exist( "scraped_urls__" + location + ".csv"):
-		urls_from_csv = from_csv("scraped_urls__" + location + ".csv")
-	else:
-		urls_from_csv = set()
-
+	create_db()
 	job_urls = web_scrape(location, url_2_scrape)
-
 	for url in job_urls:
-		if url in job_urls and url not in urls_from_csv:
+		add_job_link(url, 1)
+
+	urls_scraped = extract_all_joblinks(1)
+	urls_not_scraped = extract_all_joblinks(0)
+
+	urls = set()
+	for url in urls_not_scraped:
+		if url not in urls_scraped:
 			urls.add(url)
 
 	list_job_offers = extract_job_content(urls)
-
-	for url in urls:
-		job_urls.append(url)
-	to_csv(job_urls, "scraped_urls__" + location + ".csv")
 
 	save_to_xlsx("jobs--" + str(dt.date.today()) + "__" + location + ".xlsx", list_job_offers)
 

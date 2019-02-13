@@ -118,3 +118,4 @@ saved_jobs
 scraped_*
 
 /tests/links.db
+/links.db

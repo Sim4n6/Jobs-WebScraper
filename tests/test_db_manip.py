@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase, main
 
-from common.db_manip import create_db, add_job_link, is_scrarped_job_link, count_joblinks, delete_db, check_if_exist
+from common.db_manip import create_db, add_job_link, is_scrarped_job_link, count_joblinks, delete_db, check_if_exist, extract_all_joblinks
 
 
 class TestDBManip(TestCase):
@@ -47,9 +47,26 @@ class TestDBManip(TestCase):
 
 	def test_check_if_exist(self):
 		create_db()
-		self.assertFalse(check_if_exist(self.joblink1, 1))
+		self.assertFalse(check_if_exist(self.joblink1))
 		add_job_link(self.joblink1, 1)
-		self.assertTrue(check_if_exist(self.joblink1, 1))
+		self.assertTrue(check_if_exist(self.joblink1))
+		delete_db()
+
+	def test_extract_all_joblinks(self):
+		create_db()
+		add_job_link(self.joblink1, 1)
+		add_job_link(self.joblink2, 1)
+		urls = extract_all_joblinks(1)
+		self.assertEqual(len(urls), 2)
+		self.assertEqual(urls[0], self.joblink1)
+		self.assertEqual(urls[1], self.joblink2)
+		delete_db()
+		create_db()
+		add_job_link(self.joblink1, 1)
+		add_job_link(self.joblink2, 0)
+		urls = extract_all_joblinks(0)
+		self.assertEqual(len(urls), 1)
+		self.assertEqual(urls[0], self.joblink2)
 		delete_db()
 
 
