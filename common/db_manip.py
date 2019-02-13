@@ -15,13 +15,39 @@ def create_db():
 
 
 @log_decorator
-def add_job_link(job_link, state):
-	""" add a job_link to the database with its state """
+def delete_db():
+	""" delete table links """
+
 	conn = sqlite3.connect("links.db")
 	cur = conn.cursor()
-	cur.execute(""" INSERT INTO links VALUES (?,?) """, (job_link, state))
+	cur.execute(""" DROP TABLE IF EXISTS links """)
 	conn.commit()
 	conn.close()
+
+
+@log_decorator
+def add_job_link(job_link, state):
+	""" add a job_link to the database with its state """
+	if not check_if_exist(job_link, state):
+		conn = sqlite3.connect("links.db")
+		cur = conn.cursor()
+		cur.execute(""" INSERT OR REPLACE INTO links VALUES (?,?) """, (job_link, state))
+		conn.commit()
+		conn.close()
+
+
+@log_decorator
+def check_if_exist(job_link, state):
+	""" return boolean if joblink/state exists in links table """
+
+	conn = sqlite3.connect("links.db")
+	cur = conn.cursor()
+	cur.execute(""" SELECT * FROM links WHERE joblink=? and state=?""", (job_link, state))
+	fetched_value = cur.fetchone()
+	if fetched_value is None:
+		return False
+	else:
+		return True
 
 
 @log_decorator
@@ -30,4 +56,18 @@ def is_scrarped_job_link(job_link):
 	conn = sqlite3.connect("links.db")
 	cur = conn.cursor()
 	cur.execute(""" SELECT * FROM links WHERE joblink=? """, (job_link,))
-	return cur.fetchone()[1]
+	one_fetched = cur.fetchone()
+	if one_fetched is None:
+		return 0
+	else:
+		return one_fetched[1]
+
+
+@log_decorator
+def count_joblinks():
+	""" return number of joblinks in links table """
+	conn = sqlite3.connect("links.db")
+	cur = conn.cursor()
+	cur.execute(""" SELECT * FROM links """)
+	fetched_all = cur.fetchall()
+	return len(fetched_all)
