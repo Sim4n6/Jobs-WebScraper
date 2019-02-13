@@ -1,4 +1,4 @@
-beautifulsoup4==4.7.0
-feedparser==5.2.1
-requests==2.21.0
-openpyxl==2.5.14
+beautifulsoup4>=4.7.0
+feedparser>=5.2.1
+requests>=2.21.0
+openpyxl>=2.5.14
