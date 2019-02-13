@@ -41,3 +41,18 @@ On linux :
 On Windows :
 
     > python3 PyJobs-WebScraper.py
+    
+    
+Code coverage
+----
+
+On Windows for terminal report :
+
+     $ coverage run PyJobs-WebScraper.py
+     $ coverage report -m 
+
+On Windows for html report : 
+ 
+     > coverage run PyJobs-WebScraper.py
+     > coverage html 
+
