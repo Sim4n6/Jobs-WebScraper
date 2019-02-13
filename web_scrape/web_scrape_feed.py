@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 from job_offer import JobOffer
 from common.Decorators import log_decorator, duration_decorator
-from common.db_manip import create_db, add_job_link, extract_all_joblinks, set_state, get_state
+from common.db_manip import create_table_db, add_job_link, extract_all_joblinks, set_state, get_state
 
 
 @log_decorator
@@ -53,7 +53,7 @@ def extract_job_content_feed_url(feed_url_job):
 @log_decorator
 def extract_job_offer_from_feed(feed_parsed):
 
-	create_db()
+	create_table_db()
 	for entry in feed_parsed.entries:
 		add_job_link(entry.link)
 

@@ -7,7 +7,7 @@ import feedparser
 # user modules
 from common.Decorators import log_decorator
 from common.Xlsx_manip import save_to_xlsx
-from common.db_manip import create_db, add_job_link, extract_all_joblinks, set_state
+from common.db_manip import create_table_db, add_job_link, extract_all_joblinks, set_state
 from web_scrape.web_scrape_board import extract_job_content, web_scrape, is_allowed_by_robot
 from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_infos
 
@@ -16,7 +16,7 @@ from web_scrape.web_scrape_feed import extract_job_offer_from_feed, print_feed_i
 def web_scrape_demo(location, url_2_scrape):
 	""" Web scrape the location, extract the job offer urls and then store to xlsx """
 
-	create_db()
+	create_table_db()
 	job_urls = web_scrape(location, url_2_scrape)
 	for url in job_urls:
 		add_job_link(url)

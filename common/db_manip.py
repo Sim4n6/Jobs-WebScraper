@@ -4,8 +4,8 @@ from common.Decorators import log_decorator
 
 
 @log_decorator
-def create_db():
-	""" create if not exists a database named 'links.db' that receive job_link and its state as integer : 1 scraped """
+def create_table_db():
+	""" create table if not exists in 'links.db' that receive job_link and its state as integer 1 scraped, -1 for never """
 
 	conn = sqlite3.connect("links.db")
 	cur = conn.cursor()
@@ -15,8 +15,8 @@ def create_db():
 
 
 @log_decorator
-def delete_db():
-	""" delete table links """
+def delete_table_db():
+	""" delete table 'links' """
 
 	conn = sqlite3.connect("links.db")
 	cur = conn.cursor()
@@ -27,7 +27,7 @@ def delete_db():
 
 @log_decorator
 def add_job_link(job_link):
-	""" add a job_link to the database with its state """
+	""" add a job_link to the database if not exist """
 	if not check_if_exist(job_link):
 		conn = sqlite3.connect("links.db")
 		cur = conn.cursor()
@@ -48,6 +48,7 @@ def set_state(job_link, state):
 		conn.close()
 
 
+@log_decorator
 def get_state(job_link):
 	if check_if_exist(job_link):
 		conn = sqlite3.connect("links.db")
@@ -58,7 +59,6 @@ def get_state(job_link):
 		return fetched_one[1]
 	else:
 		return -1
-
 
 
 @log_decorator
