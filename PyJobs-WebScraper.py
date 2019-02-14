@@ -22,7 +22,7 @@ def web_scrape_demo(location, url_2_scrape):
 		add_job_link(url)
 
 	urls_scraped = extract_all_joblinks(1)
-	urls_not_scraped = extract_all_joblinks(0)
+	urls_not_scraped = extract_all_joblinks(-1)
 
 	urls = set()
 	for url in urls_not_scraped:

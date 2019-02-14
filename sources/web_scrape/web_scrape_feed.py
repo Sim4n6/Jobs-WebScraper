@@ -58,7 +58,7 @@ def extract_job_offer_from_feed(feed_parsed):
 		add_job_link(entry.link)
 
 	urls_scraped = extract_all_joblinks(1)
-	urls_not_scraped = extract_all_joblinks(0)
+	urls_not_scraped = extract_all_joblinks(-1)
 
 	urls = set()
 	for url in urls_not_scraped:
