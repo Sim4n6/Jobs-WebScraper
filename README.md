@@ -1,4 +1,4 @@
-# PyJobs-WebScraper
+# PyJobs-WebScraper [![Build Status](https://travis-ci.org/Sim4n6/PyJobs-WebScraper.svg?branch=master)](https://travis-ci.org/Sim4n6/PyJobs-WebScraper)
 A simple python job offers web scraper using *beautifulsoup4* and *requests* modules in *python3*. 
 
 
@@ -34,13 +34,15 @@ Install the necessary packages:
    
 Run
 ---
-On linux :
+On linux or Windows :
 
     $ python3 PyJobs-WebScraper.py
-
-On Windows :
-
-    > python3 PyJobs-WebScraper.py
+    
+TEST
+----
+On linux or Windows :
+  
+    $ python3 main_tests.py
     
     
 Code coverage
