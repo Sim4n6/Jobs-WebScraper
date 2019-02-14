@@ -34,13 +34,15 @@ Install the necessary packages:
    
 Run
 ---
-On linux :
+On linux or Windows :
 
     $ python3 PyJobs-WebScraper.py
-
-On Windows :
-
-    > python3 PyJobs-WebScraper.py
+    
+TEST
+----
+On linux or Windows :
+  
+    $ python3 main_tests.py
     
     
 Code coverage
