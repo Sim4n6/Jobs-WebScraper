@@ -8,7 +8,6 @@ App functionnalities :
  - It web scrapes from www.afpy.org/posts/emplois offers.
  - It uses Requests module for handling a simple HTTP get of URLs content.
  - It uses beautifulsoup4 module for parsing html content.
- - It stores the results in XLSX file, thanks to Xlsxwriter module.
 
 
 INSTALL
